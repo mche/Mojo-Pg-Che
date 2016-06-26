@@ -27,13 +27,13 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
 
-Perhaps a little code snippet.
 
     use Mojo::Pg::Che;
 
-    my $foo = Mojo::Pg::Che->new();
+    my $pg = Mojo::Pg::Che->connect("DBI:Pg:dbname=test;", "pg-user", 'pg-passwd', \%attrs);
+    # or
+    my $pg = Mojo::Pg::Che->new->dsn("DBI:Pg:dbname=test;")->username("pg-user")->password('pg-passwd')->options(\%attrs);
     ...
 
 =head1 AUTHOR
@@ -51,15 +51,17 @@ Copyright 2016 Mikhail Che.
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-
-
-
-
-
-
 =cut
 
 
-
+sub connect {
+  my $self = shift->SUPER::new;
+  map $self->$_(shift), qw(dsn username password);
+  if (my $attrs = shift) {
+    my $options = $self->options;
+    @$options{ keys %$attrs } = values %$attrs;
+  }
+  return $self;
+}
 
 1; # End of Mojo::Pg::Che
