@@ -31,7 +31,7 @@ our $VERSION = '0.01';
 
     use Mojo::Pg::Che;
 
-    my $pg = Mojo::Pg::Che->connect("DBI:Pg:dbname=test;", "pg-user", 'pg-passwd', \%attrs);
+    my $pg = Mojo::Pg::Che->connect("DBI:Pg:dbname=foo;", "pg-user", 'pg-passwd', \%attrs);
     # or
     my $pg = Mojo::Pg::Che->new
       ->dsn("DBI:Pg:dbname=test;")
