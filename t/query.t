@@ -21,19 +21,19 @@ for (13..30) {
   like  ($result->hash->{d}, qr/2016-06-$_/, 'date query ok');
 }
 
-{
-  my $db = $pg->db;
-  my $sth = $db->dbh->prepare('select ?::date as d');
+#~ {
+  #~ my $db = $pg->db;
+  #~ my $sth = $db->dbh->prepare('select ?::date as d');
 
-  for (13..30) {
-    $result = $pg->query($sth, ("$_/06/2016"));
-    like  ($result->hash->{d}, qr/2016-06-$_/, 'date sth ok');
-  }
-};
+  #~ for (13..30) {
+    #~ $result = $pg->query($sth, ("$_/06/2016"));
+    #~ like  ($result->hash->{d}, qr/2016-06-$_/, 'date sth ok');
+  #~ }
+#~ };
 
 $pg->debug(1);
 
-$result = $pg->query('select pg_sleep(3), now() as now', {async=>1});
+$result = $pg->query('select pg_sleep(3), now() as now', {async=>1,});
 #~ like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now nb-query ok');
 
 #~ $result = $pg->db->query('select pg_sleep(3), now() as now', );

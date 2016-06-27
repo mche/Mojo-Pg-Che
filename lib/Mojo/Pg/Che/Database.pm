@@ -16,7 +16,7 @@ sub query_sth {
   my $result;
   my $cb = sub {
     my ($db, $err) = map shift, 1..2;
-    croak "Error: ",$err if $err;
+    croak "Error (cb): ",$err if $err;
     #~ die shift;
     $result = shift;
   }
@@ -76,35 +76,6 @@ sub query_string {
 sub DESTROY000 {
   #~ shift->SUPER::DESTROY;
   
-}
-
-sub _watch {
-  my $self = shift;
-
-  return if $self->{watching} || $self->{watching}++;
-
-  my $dbh = $self->dbh;
-  unless ($self->{handle}) {
-    open $self->{handle}, '<&', $dbh->{pg_socket} or die "Can't dup: $!";
-  }
-  Mojo::IOLoop->singleton->reactor->io(
-    $self->{handle} => sub {
-      #~ die 146;
-      my $reactor = shift;
-
-      $self->_unwatch if !eval { $self->_notifications; 1 };
-      #~ warn '_Watch', $self->{waiting};
-      return unless $self->{waiting} && $dbh->pg_ready;
-      my ($sth, $cb) = @{delete $self->{waiting}}{qw(sth cb)};
-
-      # Do not raise exceptions inside the event loop
-      my $result = do { local $dbh->{RaiseError} = 0; $dbh->pg_result };
-      my $err = defined $result ? undef : $dbh->errstr;
-
-      $self->$cb($err, Mojo::Pg::Results->new(sth => $sth));
-      $self->_unwatch unless $self->{waiting} || $self->is_listening;
-    }
-  )->watch($self->{handle}, 1, 0);
 }
 
 1;
