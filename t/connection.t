@@ -2,6 +2,7 @@ use Mojo::Base -strict;
 
 use Test::More;
 use Mojo::Pg::Che;
+use Scalar::Util 'refaddr';
 
 my $class = 'Mojo::Pg::Che';
 my $db_class = 'Mojo::Pg::Che::Database';
@@ -11,20 +12,29 @@ my $dbi_db_class = 'DBI::db';
 my $pg1 = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8 => 1,});
 # 2
 my $pg2 = $class->new->dsn("DBI:Pg:dbname=test;")->username("guest")->password(undef);
+# 3
+my $pg3 = $class->new('postgresql://guest@/test')->on_connect(['set search_path to public;']);
 
 isa_ok($pg1, $class);
 isa_ok($pg2, $class);
+isa_ok($pg3, $class);
 
 isa_ok($pg1->db, $db_class);
 isa_ok($pg2->db, $db_class);
+isa_ok($pg3->db, $db_class);
 
 isa_ok($pg1->db->dbh, $dbi_db_class);
 isa_ok($pg2->db->dbh, $dbi_db_class);
+isa_ok($pg3->db->dbh, $dbi_db_class);
 
-cmp_ok($got, '==', $expected,);
+cmp_ok(refaddr($pg1->db->dbh), '!=', refaddr($pg2->db->dbh),);
 
-isa_ok($pg1->db->pg, $class);
-isa_ok($pg2->db, $db_class);
+cmp_ok(refaddr($pg1), '==', refaddr($pg1->db->pg),);
+cmp_ok(refaddr($pg2), '==', refaddr($pg2->db->pg),);
+cmp_ok(refaddr($pg3), '==', refaddr($pg3->db->pg),);
+
+is($pg1->options->{pg_enable_utf8}, 1, 'options pg');
+is($pg1->db->dbh->{pg_enable_utf8}, 1, 'options dbh');
 
 
 # Invalid connection string

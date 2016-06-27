@@ -93,7 +93,7 @@ sub _watch {
       my $reactor = shift;
 
       $self->_unwatch if !eval { $self->_notifications; 1 };
-      #~ warn '_Watch', $self->{waiting};
+      warn '_Watch', $self->{waiting};
       return unless $self->{waiting} && $dbh->pg_ready;
       my ($sth, $cb) = @{delete $self->{waiting}}{qw(sth cb)};
 
