@@ -110,11 +110,11 @@ sub query {
   
   my $db = $self->db;
   
-  if (ref $query) {# sth
-    return $db->query_sth($query, $attrs, @bind);
-  }
+  # sth
+  return $db->query_sth($query, $attrs, @bind)
+    if ref $query;
   
-  
+  return $db->query_string($query, $attrs, @bind);
   
 }
 
