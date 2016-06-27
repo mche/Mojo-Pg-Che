@@ -34,7 +34,15 @@ our $VERSION = '0.01';
     my $pg = Mojo::Pg::Che->connect("DBI:Pg:dbname=test;", "pg-user", 'pg-passwd', \%attrs);
     # or
     my $pg = Mojo::Pg::Che->new->dsn("DBI:Pg:dbname=test;")->username("pg-user")->password('pg-passwd')->options(\%attrs);
-    ...
+    my $result = $pg->query('select ...', {<...sth attrs...>});
+    # Bloking query
+    my $result = $pg->query('select ...',);
+    # Non-blocking query
+    my $result = $pg->query('select ...', {pg_async => 1,},);
+    # Mojo::Pg style
+    my $now = $pg->db->query('select now() as now')->hash->{now};
+    # DBI style (attr pg_async for non-blocking)
+    my $now = $pg->selectrow_hashref('select pg_sleep(?), now() as now', {pg_async => 1,}, (3))->{now};
 
 =head1 AUTHOR
 
@@ -62,6 +70,11 @@ sub connect {
     @$options{ keys %$attrs } = values %$attrs;
   }
   return $self;
+}
+
+sub query {
+  
+  
 }
 
 1; # End of Mojo::Pg::Che
