@@ -33,14 +33,26 @@ our $VERSION = '0.01';
 
     my $pg = Mojo::Pg::Che->connect("DBI:Pg:dbname=test;", "pg-user", 'pg-passwd', \%attrs);
     # or
-    my $pg = Mojo::Pg::Che->new->dsn("DBI:Pg:dbname=test;")->username("pg-user")->password('pg-passwd')->options(\%attrs);
+    my $pg = Mojo::Pg::Che->new
+      ->dsn("DBI:Pg:dbname=test;")
+      ->username("pg-user")
+      ->password('pg-passwd')
+      ->options(\%attrs);
+    
     my $result = $pg->query('select ...', {<...sth attrs...>}, @bind);
     # Bloking query
-    my $result = $pg->query('select * from foo where col=?', undef, (142));
+    my $result = $pg->query('select ...', undef, @bind);
     # Non-blocking query
-    my $result = $pg->query('select ...', {pg_async => 1,},);
+    my $result = $pg->query('select ...', {pg_async => 1, ...},);
     # Mojo::Pg style
     my $now = $pg->db->query('select now() as now')->hash->{now};
+    # Blocking sth
+    my $sth = $pg->prepare('select ...');
+    # Non-blocking sth
+    my $sth = $pg->prepare('select ...', {pg_async => 1, ...},);
+    # Query sth
+    my $result = $pg->query($sth, undef, @bind);
+    
     # DBI style (attr pg_async for non-blocking)
     my $now = $pg->selectrow_hashref('select pg_sleep(?), now() as now', {pg_async => 1,}, (3))->{now};
 
@@ -80,6 +92,8 @@ it under the same terms as Perl itself.
 =cut
 
 
+has db_class => 'Mojo::Pg::Che::Database';
+
 sub connect {
   my $self = shift->SUPER::new;
   map $self->$_(shift), qw(dsn username password);
@@ -92,8 +106,25 @@ sub connect {
 
 sub query {
   my $self = shift;
+  my ($query, $attrs, @bind) = @_;
+  
+  my $db = $self->db;
+  
+  if (ref $query) {# sth
+    return $db->query_sth($query, $attrs, @bind);
+  }
   
   
+  
+}
+
+sub db {
+  my $self = shift;
+
+  # Fork-safety
+  delete @$self{qw(pid queue)} unless ($self->{pid} //= $$) eq $$;
+
+  return $self->db_class->new(dbh => $self->_dequeue, pg => $self);
 }
 
 1; # End of Mojo::Pg::Che
