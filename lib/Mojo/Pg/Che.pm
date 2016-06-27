@@ -34,15 +34,33 @@ our $VERSION = '0.01';
     my $pg = Mojo::Pg::Che->connect("DBI:Pg:dbname=test;", "pg-user", 'pg-passwd', \%attrs);
     # or
     my $pg = Mojo::Pg::Che->new->dsn("DBI:Pg:dbname=test;")->username("pg-user")->password('pg-passwd')->options(\%attrs);
-    my $result = $pg->query('select ...', {<...sth attrs...>});
+    my $result = $pg->query('select ...', {<...sth attrs...>}, @bind);
     # Bloking query
-    my $result = $pg->query('select ...',);
+    my $result = $pg->query('select * from foo where col=?', undef, (142));
     # Non-blocking query
     my $result = $pg->query('select ...', {pg_async => 1,},);
     # Mojo::Pg style
     my $now = $pg->db->query('select now() as now')->hash->{now};
     # DBI style (attr pg_async for non-blocking)
     my $now = $pg->selectrow_hashref('select pg_sleep(?), now() as now', {pg_async => 1,}, (3))->{now};
+
+=head1 METHODS
+
+=head2 new
+
+Parent method of L<Mojo::Pg#new>
+
+=head2 connect
+
+DBI-style of new object instance. See L<DBI#connect>
+
+=head3 query
+
+Is a shortcut of L<Mojo::Pg::Database#query>.
+
+Blocking query without attr B<pg_async>.
+
+Non-blocking query with attr B<pg_async>.
 
 =head1 AUTHOR
 
@@ -73,6 +91,7 @@ sub connect {
 }
 
 sub query {
+  my $self = shift;
   
   
 }
