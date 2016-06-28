@@ -5,7 +5,8 @@ use Mojo::Pg::Che;
 use Scalar::Util 'refaddr';
 
 my $class = 'Mojo::Pg::Che';
-my $db_class = 'Mojo::Pg::Che::Database';
+my $db_class = 'Mojo::Pg::Che::Db';
+my $mojo_db_class = 'Mojo::Pg::Database';
 my $dbi_db_class = 'DBI::db';
 
 # 1
@@ -19,9 +20,13 @@ isa_ok($pg1, $class);
 isa_ok($pg2, $class);
 isa_ok($pg3, $class);
 
-isa_ok($pg1->db, $db_class);
-isa_ok($pg2->db, $db_class);
-isa_ok($pg3->db, $db_class);
+isa_ok($pg1->dbi, $db_class);
+isa_ok($pg2->dbi, $db_class);
+isa_ok($pg3->dbi, $db_class);
+
+isa_ok($pg1->db, $mojo_db_class);
+isa_ok($pg2->db, $mojo_db_class);
+isa_ok($pg3->db, $mojo_db_class);
 
 isa_ok($pg1->db->dbh, $dbi_db_class);
 isa_ok($pg2->db->dbh, $dbi_db_class);
@@ -32,6 +37,8 @@ cmp_ok(refaddr($pg1->db->dbh), '!=', refaddr($pg2->db->dbh),);
 cmp_ok(refaddr($pg1), '==', refaddr($pg1->db->pg),);
 cmp_ok(refaddr($pg2), '==', refaddr($pg2->db->pg),);
 cmp_ok(refaddr($pg3), '==', refaddr($pg3->db->pg),);
+
+
 
 is($pg1->options->{pg_enable_utf8}, 1, 'options pg');
 is($pg1->db->dbh->{pg_enable_utf8}, 1, 'options dbh');

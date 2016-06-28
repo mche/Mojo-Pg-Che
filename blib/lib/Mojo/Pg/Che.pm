@@ -92,7 +92,7 @@ it under the same terms as Perl itself.
 =cut
 
 
-has db_class => sub { require Mojo::Pg::Che::Db; 'Mojo::Pg::Che::Db'; };
+has db_class => sub { require Mojo::Pg::Che::Database; 'Mojo::Pg::Che::Database'; };
 
 has on_connect => sub {[]};
 
@@ -115,14 +115,14 @@ sub query {
   my $db = $self->db;
   
   # sth
-  return $self->dbi($query->{Database})->query_sth($query, @_)
+  return $self->db($query->{Database})->query_sth($query, @_)
      if ref $query;
   
-  return $self->dbi->query_string($query, @_);
+  return $self->db->query_string($query, @_);
   
 }
 
-sub dbi {
+sub db {
   my ($self, $dbh) = shift;
 
   # Fork-safety
