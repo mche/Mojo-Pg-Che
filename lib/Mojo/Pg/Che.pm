@@ -91,6 +91,7 @@ it under the same terms as Perl itself.
 
 =cut
 
+use Carp qw(croak);
 
 has db_class => sub { require Mojo::Pg::Che::Db; 'Mojo::Pg::Che::Db'; };
 
@@ -109,20 +110,35 @@ sub connect {
 }
 
 sub query {
-  my ($self, $query) = (shift, shift);
+  my ($self,) = (shift,);
   #~ my ($query, $attrs, @bind) = @_;
+  my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
   
-  my $db = $self->db;
+  my $attrs = shift;
+  my $async = delete $attrs->{async};
   
-  # sth
-  return $self->dbi($query->{Database})->query_sth($query, @_)
-     if ref $query;
+  my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
+  my $result;
+  $cb ||= sub {
+    my ($db, $err) = map shift, 1..2;
+    croak "Error result: ",$err
+      if $err;
+    $result = shift;
+    
+  } if $async;
   
-  return $self->dbi->query_string($query, @_);
+  my @bind = @_;
+  
+  if ($sth) {$result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());}
+  else {$result = $self->db->query_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
+  
+  Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
+
+  return $result;
   
 }
 
-sub dbi {
+sub db {
   my ($self, $dbh) = shift;
 
   # Fork-safety

@@ -42,9 +42,11 @@ $pg->db->query('select pg_sleep(3), now() as now',
   sub {
     warn 'Non-block done';
     my ($db, $err, $results) = @_;
-    die $err if $err; $result = $results;
+    die $err if $err;
+    $result = $results;
   }
 );
+Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
 like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now nb-query ok');
 
 

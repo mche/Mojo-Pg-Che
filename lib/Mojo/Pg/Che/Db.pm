@@ -1,7 +1,7 @@
 package Mojo::Pg::Che::Db;
 
-#~ use Mojo::Base 'Mojo::Pg::Database';
-use Mojo::Base -base;
+use Mojo::Base 'Mojo::Pg::Database';
+#~ use Mojo::Base -base;
 use Carp qw(croak shortmess);
 use DBD::Pg ':async';
 #~ use Mojo::JSON 'to_json';
@@ -10,63 +10,39 @@ use DBD::Pg ':async';
 
 has [qw(dbh pg)];
 
-has mojo_db => sub {
-  my $self = shift;
-  require Mojo::Pg::Database;
-  Mojo::Pg::Database->new(pg=>$self->pg, dbh=>$self->dbh);
-};
+#~ has mojo_db => sub {
+  #~ my $self = shift;
+  #~ require Mojo::Pg::Database;
+  #~ Mojo::Pg::Database->new(pg=>$self->pg, dbh=>$self->dbh);
+#~ };
 
 sub query_sth {
-  my ($self, $sth, @bind) = @_;
+  my ($self, $sth,) = map shift, 1..2;
   
-  croak 'Non-blocking query already in progress' if $self->mojo_db->{waiting};
+  my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
+  
+  croak 'Non-blocking query already in progress' if $self->{waiting};
   
   my $dbh = $self->dbh;
-  my $result;
-  my $cb = sub {
-    my ($db, $err) = map shift, 1..2;
-    croak "Error (cb): ",$err if $err;
-    #~ die shift;
-    $result = shift;
-  }
-    if $dbh->{private_che_async};
-  
-  
   local $sth->{HandleError} = sub {$_[0] = shortmess $_[0]; 0;};
   #~ $sth->execute(map { _json($_) ? to_json $_->{json} : $_ } @_);
-  $sth->execute(@bind);
+  $sth->execute(@_);#binds
   
   # Blocking
-  unless ($dbh->{private_che_async}) {
-    $self->mojo_db->_notifications;
+  unless ($cb) {
+    $self->_notifications;
     return Mojo::Pg::Results->new(sth => $sth);
   }
   
   # Non-blocking
-  #~ print STDERR "Starting non-blocking query ..."
-    #~ if $self->pg->debug;
-  
-  $self->mojo_db->{waiting} = {cb => $cb, sth => $sth};
-  $self->mojo_db->_watch;
-  
-  #~ print STDERR "... done non-blocking query"
-    #~ if $self->pg->debug;
-  
-  $dbh->{private_che_async} = undef;
-  
-  return $result;
+  $self->{waiting} = {cb => $cb, sth => $sth};
+  $self->_watch;
 }
 
 sub query_string {
-  my ($self, $query, $attrs, @bind) = @_;
+  my ($self, $query, $attrs,) = map shift, 1..3;
   
   my $dbh = $self->dbh;
-  
-  #~ use Data::Dumper;
-  ($dbh->{private_che_async} = delete $attrs->{async})
-    and ($attrs->{pg_async} = PG_ASYNC)
-    #~ and die Dumper($attrs);
-    if $attrs->{async};
   
   my $sth;
   if (delete $attrs->{cached}) {
@@ -75,20 +51,18 @@ sub query_string {
     $sth = $dbh->prepare($query, $attrs,);
   }
   
-  #~ die Dumper($sth->private_attribute_info)
-    #~ if $self->pg->debug;
-  
-  return $self->query_sth($sth, @bind);
+  return $self->query_sth($sth, @_);
   
 }
 
-sub DESTROY {
+sub DESTROY0000 {
   my $self = shift;
 
-  my $waiting = $self->mojo_db->{waiting};
+  my $waiting = $self->{waiting};
   $waiting->{cb}($self, 'Premature connection close', undef) if $waiting->{cb};
 
   return unless (my $pg = $self->pg) && (my $dbh = $self->dbh);
+  #~ warn "Enqueque $dbh on destroy";
   $pg->_enqueue($dbh);
 }
 
