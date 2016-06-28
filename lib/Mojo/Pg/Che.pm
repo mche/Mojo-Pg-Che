@@ -119,7 +119,7 @@ sub query {
   
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   my $result;
-  $cb ||= sub {
+  $cb = sub {
     my ($db, $err) = map shift, 1..2;
     croak "Error on non-blocking query: ",$err
       if $err;

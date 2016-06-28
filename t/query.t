@@ -21,15 +21,15 @@ for (13..30) {
   like  ($result->hash->{d}, qr/2016-06-$_/, 'date query ok');
 }
 
-#~ {
-  #~ my $db = $pg->db;
-  #~ my $sth = $db->dbh->prepare('select ?::date as d');
+{
+  my $db = $pg->db;
+  my $sth = $db->dbh->prepare('select ?::date as d');
 
-  #~ for (13..30) {
-    #~ $result = $pg->query($sth, ("$_/06/2016"));
-    #~ like  ($result->hash->{d}, qr/2016-06-$_/, 'date sth ok');
-  #~ }
-#~ };
+  for (13..30) {
+    $result = $pg->query($sth, undef, ("$_/06/2016"));
+    like  ($result->hash->{d}, qr/2016-06-$_/, 'date sth ok');
+  }
+};
 
 #~ $pg->debug(1);
 
@@ -38,17 +38,20 @@ for (13..30) {
 
 $result = undef;
 
-$pg->db->query('select pg_sleep(?::int), now() as now' => 2,
-  sub {
-    #~ warn 'Non-block done';
-    my ($db, $err, $results) = @_;
-    die $err if $err;
-    $result = $results;
-  }
-);
+my $cb = sub {
+  #~ warn 'Non-block done';
+  my ($db, $err, $results) = @_;
+  die $err if $err;
+  $result = $results;
+};
+
+$pg->db->query('select pg_sleep(?::int), now() as now' => 3, $cb);
 Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
 like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok');
 
-
+for (13..30) {
+  my $result = $pg->query('select ?::date as d, pg_sleep(?::int)', {async=>1,}, ("$_/06/2016", 1), sub {die 'Will ignore';});
+  like  ($result->hash->{d}, qr/2016-06-$_/, 'date async query ok');
+}
 
 done_testing();
