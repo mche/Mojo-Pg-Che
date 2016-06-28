@@ -166,6 +166,58 @@ sub db {
 }
 
 
+sub prepare {
+  my ($dbh, $query, $attrs, $flag) = @_;
+  $dbh ||= $self->_dequeue;
+  
+  my $sth;
+  if (delete $attrs->{cached}) {
+    $sth = $dbh->prepare_cached($query, $attrs, $flag);
+  } else {
+    $sth = $dbh->prepare($query, $attrs,);
+  }
+  return $sth;
+}
+
+=pod
+
+  sub AUTOLOAD {
+    (my $name = our $AUTOLOAD) =~ s/.*:://;
+    no strict 'refs';  # allow symbolic references
+
+    *$AUTOLOAD = sub { print "$name subroutine called\n" };    
+    goto &$AUTOLOAD;   # jump to the new sub
+  }
+
+=cut
+
+our @DBH_METHODS = qw(selectrow_hashref);
+our $AUTOLOAD;
+sub  AUTOLOAD {
+  my ($method) = $AUTOLOAD =~ /([^:]+)$/;
+  my $self = shift;
+  #~ 
+  #~ my $dbh = $db->dbh;
+  
+  if ($method =~ /^select/) {
+    my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
+    my $dbh = $sth->{Database}
+      if $sth;
+    
+    my $db = $self->db($dbh);
+    
+    $db->dbh->can($method)
+      or croak "Method $method not implemented";
+    
+    return $db->$method($sth || $query, @_);
+  }
+  
+  die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
+          #~ unless $db->can($method)
+  #~ my $fetchmethod = $METHOD{$method};
+  #~ defined $fetchmethod or croak "Method $method not implemented yet";
+  
+}
 
 
 1; # End of Mojo::Pg::Che

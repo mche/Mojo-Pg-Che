@@ -61,10 +61,42 @@ sub query_string {
   
 }
 
-sub selectrow_hashref {
+#~ sub selectrow_hashref {
   
+  
+#~ }
+
+our $AUTOLOAD;
+sub  AUTOLOAD {
+  my ($method) = $AUTOLOAD =~ /([^:]+)$/;
+  my $self = shift;
+  my $db = $self->db;
+  my $dbh = $db->dbh;
+  
+  if ($dbh->can($method) && $method =~ /^select/) {
+    my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
+    
+    my $key_field = shift
+      if $method eq 'selectall_hashref';
+    my $attrs = shift;
+    my $async = delete $attrs->{async};
+    my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
+    
+    $sth ||= $self->prepare($dbh, $query, $attrs, 3);
+    my $result;
+    $cb = sub {
+      my ($db, $err) = map shift, 1..2;
+      croak "Error on non-blocking $method: ",$err
+        if $err;
+      $result = shift;
+      
+    } if $async;
+    
+    my @bind = @_;
+    
+    return $db->$method($sth, $key_field ? ($key_field) : (), $attrs, );
+  }
   
 }
-
 
 1;
