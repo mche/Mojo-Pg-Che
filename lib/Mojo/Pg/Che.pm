@@ -167,7 +167,7 @@ sub db {
 
 
 sub prepare {
-  my ($dbh, $query, $attrs, $flag) = @_;
+  my ($self, $query, $attrs, $flag, $dbh, ) = @_;
   $dbh ||= $self->_dequeue;
   
   my $sth;
@@ -196,26 +196,21 @@ our $AUTOLOAD;
 sub  AUTOLOAD {
   my ($method) = $AUTOLOAD =~ /([^:]+)$/;
   my $self = shift;
-  #~ 
-  #~ my $dbh = $db->dbh;
   
   if ($method =~ /^select/) {
-    my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
+    my $sth = ref $_[0] && shift;
     my $dbh = $sth->{Database}
       if $sth;
     
     my $db = $self->db($dbh);
     
     $db->dbh->can($method)
-      or croak "Method $method not implemented";
+      or croak "Method [$method] not implemented";
     
-    return $db->$method($sth || $query, @_);
+    return $db->$method($sth ? ($sth) : (), @_);
   }
   
   die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
-          #~ unless $db->can($method)
-  #~ my $fetchmethod = $METHOD{$method};
-  #~ defined $fetchmethod or croak "Method $method not implemented yet";
   
 }
 

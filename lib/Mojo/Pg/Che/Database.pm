@@ -61,17 +61,11 @@ sub query_string {
   
 }
 
-#~ sub selectrow_hashref {
-  
-  
-#~ }
-
 our $AUTOLOAD;
 sub  AUTOLOAD {
   my ($method) = $AUTOLOAD =~ /([^:]+)$/;
   my $self = shift;
-  my $db = $self->db;
-  my $dbh = $db->dbh;
+  my $dbh = $self->dbh;
   
   if ($dbh->can($method) && $method =~ /^select/) {
     my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
@@ -82,7 +76,7 @@ sub  AUTOLOAD {
     my $async = delete $attrs->{async};
     my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
     
-    $sth ||= $self->prepare($dbh, $query, $attrs, 3);
+    $sth ||= $self->pg->prepare($query, $attrs, 3, $dbh,);
     my $result;
     $cb = sub {
       my ($db, $err) = map shift, 1..2;
@@ -94,8 +88,10 @@ sub  AUTOLOAD {
     
     my @bind = @_;
     
-    return $db->$method($sth, $key_field ? ($key_field) : (), $attrs, );
+    return $dbh->$method($sth, $key_field ? ($key_field) : (), $attrs, @bind);
   }
+  
+  die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
   
 }
 
