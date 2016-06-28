@@ -23,8 +23,8 @@ for (13..17) {
 
 
 {
-  my $db = $pg->db;
-  my $sth = $db->dbh->prepare('select ?::date as d');
+  #~ my $db = $pg->db;
+  my $sth = $pg->prepare('select ?::date as d');
 
   for (13..17) {
     $result = $pg->query($sth, undef, ("$_/06/2016"));

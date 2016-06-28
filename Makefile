@@ -193,7 +193,7 @@ PERL_ARCHIVE_AFTER =
 TO_INST_PM = README.pod \
 	lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pm \
-	lib/Mojo/Pg/Che/Db.pm
+	lib/Mojo/Pg/Che/Results.pm
 
 PM_TO_BLIB = README.pod \
 	$(INST_LIB)/Mojo/Pg/README.pod \
@@ -201,8 +201,8 @@ PM_TO_BLIB = README.pod \
 	blib/lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pm \
 	blib/lib/Mojo/Pg/Che/Database.pm \
-	lib/Mojo/Pg/Che/Db.pm \
-	blib/lib/Mojo/Pg/Che/Db.pm
+	lib/Mojo/Pg/Che/Results.pm \
+	blib/lib/Mojo/Pg/Che/Results.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -488,7 +488,7 @@ realclean_subdirs :
 # Delete temporary files (via clean) and also delete dist files
 realclean purge ::  clean realclean_subdirs
 	- $(RM_F) \
-	  $(MAKEFILE_OLD) $(FIRST_MAKEFILE) 
+	  $(FIRST_MAKEFILE) $(MAKEFILE_OLD) 
 	- $(RM_RF) \
 	  $(DISTVNAME) 
 
@@ -880,7 +880,7 @@ pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	  README.pod $(INST_LIB)/Mojo/Pg/README.pod \
 	  lib/Mojo/Pg/Che.pm blib/lib/Mojo/Pg/Che.pm \
 	  lib/Mojo/Pg/Che/Database.pm blib/lib/Mojo/Pg/Che/Database.pm \
-	  lib/Mojo/Pg/Che/Db.pm blib/lib/Mojo/Pg/Che/Db.pm 
+	  lib/Mojo/Pg/Che/Results.pm blib/lib/Mojo/Pg/Che/Results.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 
