@@ -6,7 +6,7 @@ use Scalar::Util 'refaddr';
 
 my $class = 'Mojo::Pg::Che';
 my $db_class = 'Mojo::Pg::Che::Db';
-my $mojo_db_class = 'Mojo::Pg::Database';
+#~ my $mojo_db_class = 'Mojo::Pg::Database';
 my $dbi_db_class = 'DBI::db';
 
 # 1
@@ -20,13 +20,13 @@ isa_ok($pg1, $class);
 isa_ok($pg2, $class);
 isa_ok($pg3, $class);
 
-isa_ok($pg1->dbi, $db_class);
-isa_ok($pg2->dbi, $db_class);
-isa_ok($pg3->dbi, $db_class);
+isa_ok($pg1->db, $db_class);
+isa_ok($pg2->db, $db_class);
+isa_ok($pg3->db, $db_class);
 
-isa_ok($pg1->db, $mojo_db_class);
-isa_ok($pg2->db, $mojo_db_class);
-isa_ok($pg3->db, $mojo_db_class);
+#~ isa_ok($pg1->db, $mojo_db_class);
+#~ isa_ok($pg2->db, $mojo_db_class);
+#~ isa_ok($pg3->db, $mojo_db_class);
 
 isa_ok($pg1->db->dbh, $dbi_db_class);
 isa_ok($pg2->db->dbh, $dbi_db_class);

@@ -23,7 +23,7 @@ sub query_sth {
   
   croak 'Non-blocking query already in progress' if $self->{waiting};
   
-  my $dbh = $self->dbh;
+  #~ my $dbh = $self->dbh;
   local $sth->{HandleError} = sub {$_[0] = shortmess $_[0]; 0;};
   #~ $sth->execute(map { _json($_) ? to_json $_->{json} : $_ } @_);
   $sth->execute(@_);#binds
@@ -43,6 +43,9 @@ sub query_string {
   my ($self, $query, $attrs,) = map shift, 1..3;
   
   my $dbh = $self->dbh;
+  
+  $attrs->{pg_async} = PG_ASYNC
+    if ref $_[-1] eq 'CODE';
   
   my $sth;
   if (delete $attrs->{cached}) {

@@ -31,23 +31,23 @@ for (13..30) {
   #~ }
 #~ };
 
-$pg->debug(1);
+#~ $pg->debug(1);
 
 #~ $result = $pg->query('select pg_sleep(3), now() as now', {async=>1,});
 #~ like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now nb-query ok');
 
 $result = undef;
 
-$pg->db->query('select pg_sleep(3), now() as now',
+$pg->db->query('select pg_sleep(?::int), now() as now' => 2,
   sub {
-    warn 'Non-block done';
+    #~ warn 'Non-block done';
     my ($db, $err, $results) = @_;
     die $err if $err;
     $result = $results;
   }
 );
 Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
-like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now nb-query ok');
+like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok');
 
 
 

@@ -121,7 +121,7 @@ sub query {
   my $result;
   $cb ||= sub {
     my ($db, $err) = map shift, 1..2;
-    croak "Error result: ",$err
+    croak "Error on non-blocking query: ",$err
       if $err;
     $result = shift;
     
