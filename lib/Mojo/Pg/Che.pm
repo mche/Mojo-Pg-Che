@@ -137,8 +137,10 @@ sub query {
   
   my @bind = @_;
   
-  if ($sth) {$result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());}
-  else {$result = $self->db->query_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
+  $sth ||= $self->prepare($query, $attrs, 3,);
+  
+  $result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());
+  #~ else {$result = $self->db->query_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
   
   Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
 

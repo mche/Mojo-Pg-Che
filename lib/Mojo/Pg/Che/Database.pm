@@ -10,6 +10,11 @@ use DBD::Pg ':async';
 
 has [qw(dbh pg)];
 
+has result_class => sub {
+  require Mojo::Pg::Che::Results;
+  'Mojo::Pg::Che::Results';
+}
+
 #~ has mojo_db => sub {
   #~ my $self = shift;
   #~ require Mojo::Pg::Database;
@@ -34,7 +39,7 @@ sub query_sth {
   # Blocking
   unless ($cb) {
     $self->_notifications;
-    return Mojo::Pg::Results->new(sth => $sth);
+    return $self->result_class->new(sth => $sth);
   }
   
   # Non-blocking
@@ -42,7 +47,7 @@ sub query_sth {
   $self->_watch;
 }
 
-sub query_string {
+sub query_string0000 {
   my ($self, $query, $attrs,) = map shift, 1..3;
   
   my $dbh = $self->dbh;
@@ -52,7 +57,7 @@ sub query_string {
   
   my $sth;
   if (delete $attrs->{cached}) {
-    $sth = $dbh->prepare_cached($query, $attrs, 3);
+    $sth = $dbh->prepare_cached();
   } else {
     $sth = $dbh->prepare($query, $attrs,);
   }
