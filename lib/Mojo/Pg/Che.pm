@@ -137,6 +137,7 @@ sub query {
   
   my @bind = @_;
   
+  
   $sth ||= $self->prepare($query, $attrs, 3,);
   
   $result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());
