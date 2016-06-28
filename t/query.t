@@ -38,7 +38,13 @@ $pg->debug(1);
 
 $result = undef;
 
-$pg->db->query('select pg_sleep(3), now() as now', sub {warn 'Non-block done'; my ($db, $err, $results) = @_; die $err if $err; $result = $results;});
+$pg->db->query('select pg_sleep(3), now() as now',
+  sub {
+    warn 'Non-block done';
+    my ($db, $err, $results) = @_;
+    die $err if $err; $result = $results;
+  }
+);
 like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now nb-query ok');
 
 
