@@ -21,6 +21,7 @@ for (13..30) {
   like  ($result->hash->{d}, qr/2016-06-$_/, 'date query ok');
 }
 
+
 {
   my $db = $pg->db;
   my $sth = $db->dbh->prepare('select ?::date as d');
@@ -28,6 +29,27 @@ for (13..30) {
   for (13..30) {
     $result = $pg->query($sth, undef, ("$_/06/2016"));
     like  ($result->hash->{d}, qr/2016-06-$_/, 'date sth ok');
+  }
+};
+
+
+{
+  my $db = $pg->db;
+  my $sth = $db->dbh->prepare('select ?::date as d');
+  my @results;
+  my $cb = sub {
+    #~ warn 'Non-block done';
+    my ($db, $err, $results) = @_;
+    die $err if $err;
+    push @results, $results;
+  };
+
+  for (13..20) {
+    $pg->query($sth, undef, ("$_/06/2016"), $cb);
+  }
+  Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+  for (@results) {
+    like  ($_->hash->{d}, qr/2016-06-\d+/, 'date sth ok');
   }
 };
 

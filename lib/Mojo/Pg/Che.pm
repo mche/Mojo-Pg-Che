@@ -43,15 +43,21 @@ our $VERSION = '0.01';
     # Bloking query
     my $result = $pg->query('select ...', undef, @bind);
     # Non-blocking query
-    my $result = $pg->query('select ...', {pg_async => 1, ...},);
+    my $result = $pg->query('select ...', {async => 1, ...}, @bind);
+    # Cached sth of query
+    my $result = $pg->query('select ...', {cache => 1, ...}, @bind);
+    
     # Mojo::Pg style
     my $now = $pg->db->query('select now() as now')->hash->{now};
-    # Blocking sth
-    my $sth = $pg->prepare('select ...');
-    # Non-blocking sth
-    my $sth = $pg->prepare('select ...', {pg_async => 1, ...},);
-    # Query sth
-    my $result = $pg->query($sth, undef, @bind);
+    # prepared sth
+    my $sth = $pg->db->dbh->prepare('select ...');
+    # Non-blocking query sth
+    my $result = $pg->query($sth, undef, @bind, sub {my ($db, $err, $result) = @_; ...});
+    Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+    
+    # Result non-blocking query sth
+    my $result = $pg->query($sth, {async => 1,}, @bind,);
+    
     
     # DBI style (attr pg_async for non-blocking)
     my $now = $pg->selectrow_hashref('select pg_sleep(?), now() as now', {pg_async => 1,}, (3))->{now};
@@ -93,7 +99,9 @@ it under the same terms as Perl itself.
 
 use Carp qw(croak);
 
-has db_class => sub { require Mojo::Pg::Che::Db; 'Mojo::Pg::Che::Db'; };
+has db_class => sub { require Mojo::Pg::Che::Database; 'Mojo::Pg::Che::Database'; };
+
+#~ has dbi_db_class => 'Mojo::Pg::Che::Db';
 
 has on_connect => sub {[]};
 
@@ -151,8 +159,13 @@ sub db {
       $dbh->do($_) for @{$self->on_connect};
     }
   }
+  
+  #~ bless $dbh, $self->dbi_db_class;
 
   return $self->db_class->new(dbh => $dbh, pg => $self);
 }
+
+
+
 
 1; # End of Mojo::Pg::Che

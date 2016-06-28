@@ -5,7 +5,7 @@ use Mojo::Pg::Che;
 use Scalar::Util 'refaddr';
 
 my $class = 'Mojo::Pg::Che';
-my $db_class = 'Mojo::Pg::Che::Db';
+my $db_class = 'Mojo::Pg::Che::Database';
 #~ my $mojo_db_class = 'Mojo::Pg::Database';
 my $dbi_db_class = 'DBI::db';
 

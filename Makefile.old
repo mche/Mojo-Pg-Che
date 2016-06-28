@@ -192,12 +192,15 @@ PERL_ARCHIVE_AFTER =
 
 TO_INST_PM = README.pod \
 	lib/Mojo/Pg/Che.pm \
+	lib/Mojo/Pg/Che/Database.pm \
 	lib/Mojo/Pg/Che/Db.pm
 
 PM_TO_BLIB = README.pod \
 	$(INST_LIB)/Mojo/Pg/README.pod \
 	lib/Mojo/Pg/Che.pm \
 	blib/lib/Mojo/Pg/Che.pm \
+	lib/Mojo/Pg/Che/Database.pm \
+	blib/lib/Mojo/Pg/Che/Database.pm \
 	lib/Mojo/Pg/Che/Db.pm \
 	blib/lib/Mojo/Pg/Che/Db.pm
 
@@ -876,6 +879,7 @@ pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
 	  README.pod $(INST_LIB)/Mojo/Pg/README.pod \
 	  lib/Mojo/Pg/Che.pm blib/lib/Mojo/Pg/Che.pm \
+	  lib/Mojo/Pg/Che/Database.pm blib/lib/Mojo/Pg/Che/Database.pm \
 	  lib/Mojo/Pg/Che/Db.pm blib/lib/Mojo/Pg/Che/Db.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
