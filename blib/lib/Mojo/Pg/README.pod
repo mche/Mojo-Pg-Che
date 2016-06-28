@@ -173,9 +173,13 @@ sub prepare {
   my ($self, $query, $attrs, $flag, $dbh, ) = @_;
   $dbh ||= $self->_dequeue;
   
-  return $dbh->prepare_cached($query, $attrs, $flag)
-      if delete $attrs->{cached};
-  return $dbh->prepare($query, $attrs,);
+  my $sth;
+  if (delete $attrs->{cached}) {
+    $sth = $dbh->prepare_cached($query, $attrs, $flag);
+  } else {
+    $sth = $dbh->prepare($query, $attrs,);
+  }
+  return $sth;
 }
 
 =pod
