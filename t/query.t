@@ -14,11 +14,11 @@ my $result;
 $result = $pg->query('select now() as now',);
 
 isa_ok($result, $results_class);
-like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now query ok');
+like($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now query ok');
 
-for (13..30) {
+for (13..17) {
   $result = $pg->query('select ?::date as d', undef, ("$_/06/2016"));
-  like  ($result->hash->{d}, qr/2016-06-$_/, 'date query ok');
+  like($result->hash->{d}, qr/2016-06-$_/, 'date query ok');
 }
 
 
@@ -26,16 +26,14 @@ for (13..30) {
   my $db = $pg->db;
   my $sth = $db->dbh->prepare('select ?::date as d');
 
-  for (13..30) {
+  for (13..17) {
     $result = $pg->query($sth, undef, ("$_/06/2016"));
-    like  ($result->hash->{d}, qr/2016-06-$_/, 'date sth ok');
+    like($result->hash->{d}, qr/2016-06-$_/, 'date sth ok');
   }
 };
 
 
 {
-  my $db = $pg->db;
-  my $sth = $db->dbh->prepare('select ?::date as d');
   my @results;
   my $cb = sub {
     #~ warn 'Non-block done';
@@ -44,19 +42,15 @@ for (13..30) {
     push @results, $results;
   };
 
-  for (13..20) {
-    $pg->query($sth, undef, ("$_/06/2016"), $cb);
+  for (13..17) {
+    $pg->query('select ?::date as d, pg_sleep(?::int)', {cached=>1,}, ("$_/06/2016", 2), $cb);
   }
   Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
   for (@results) {
-    like  ($_->hash->{d}, qr/2016-06-\d+/, 'date sth ok');
+    like($_->hash->{d}, qr/2016-06-\d+/, 'date sth ok');
   }
 };
 
-#~ $pg->debug(1);
-
-#~ $result = $pg->query('select pg_sleep(3), now() as now', {async=>1,});
-#~ like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now nb-query ok');
 
 $result = undef;
 
@@ -69,11 +63,11 @@ my $cb = sub {
 
 $pg->db->query('select pg_sleep(?::int), now() as now' => 3, $cb);
 Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
-like  ($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok');
+like($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok');
 
-for (13..30) {
+for (13..17) {
   my $result = $pg->query('select ?::date as d, pg_sleep(?::int)', {async=>1,}, ("$_/06/2016", 1), sub {die 'Will ignore';});
-  like  ($result->hash->{d}, qr/2016-06-$_/, 'date async query ok');
+  like($result->hash->{d}, qr/2016-06-$_/, 'date async query ok');
 }
 
 done_testing();

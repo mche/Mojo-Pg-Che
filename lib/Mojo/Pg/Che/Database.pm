@@ -61,5 +61,10 @@ sub query_string {
   
 }
 
+sub selectrow_hashref {
+  
+  
+}
+
 
 1;
