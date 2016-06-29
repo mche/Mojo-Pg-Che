@@ -105,7 +105,7 @@ has on_connect => sub {[]};
 
 has qw(debug);
 
-has dbh_private_attr => sub { my $pkg = __PACKAGE__; 'private_'.($pkg =~ s/:+/_/gr); };
+#~ has dbh_private_attr => sub { my $pkg = __PACKAGE__; 'private_'.($pkg =~ s/:+/_/gr); };
 
 sub connect {
   my $self = shift->SUPER::new;
@@ -127,7 +127,7 @@ sub query {
   
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   my $result;
-  $cb = sub {
+  $cb ||= sub {
     my ($db, $err) = map shift, 1..2;
     croak "Error on non-blocking query: ",$err
       if $err;
@@ -152,26 +152,14 @@ sub db {
   # Fork-safety
   delete @$self{qw(pid queue)} unless ($self->{pid} //= $$) eq $$;
   
-  unless ($dbh) {
-    $dbh = $self->_dequeue;
-    
-    my $dbh_attr = $dbh->{$self->dbh_private_attr} ||= {};
-  
-    if ( !$dbh_attr->{on_connect}
-        && $self->on_connect && @{$self->on_connect} ) {
-    
-      $dbh->do($_)
-        for @{$self->on_connect};
-      
-      $dbh_attr->{on_connect}++;
-      
-    }
-  }
+  $dbh ||= $self->_dequeue;
 
   return $self->db_class->new(dbh => $dbh, pg => $self);
 }
 
 sub prepare { shift->db->prepare(@_); }
+sub prepare_cached { shift->db->prepare_cached(@_); }
+sub selectrow_hashref { shift->query(@_)->fetchrow_hashref  }
 
 # Patch Mojo::Pg::_dequeue
 sub _dequeue {
@@ -182,18 +170,27 @@ sub _dequeue {
   my $queue = $self->{queue} ||= [];
   
   for my $i (0..$#$queue) {
+    
     my $dbh = $queue->[$i];
+    
     return (splice(@$queue, $i, 1))[0]
-      if !$dbh->{pg_async_status}
-        && $dbh->ping;
+      if ! $dbh->{pg_async_status} && $dbh->ping;
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
-  warn "DBI->connect $dbh";
-  if (my $path = $self->search_path) {
-    my $search_path = join ', ', map { $dbh->quote_identifier($_) } @$path;
-    $dbh->do("set search_path to $search_path");
+
+  #~ if (my $path = $self->search_path) {
+    #~ my $search_path = join ', ', map { $dbh->quote_identifier($_) } @$path;
+    #~ $dbh->do("set search_path to $search_path");
+  #~ }
+  
+  if ( $self->on_connect && @{$self->on_connect} ) {
+  
+    $dbh->do($_)
+      for @{$self->on_connect};
+    
   }
+  
   ++$self->{migrated} and $self->migrations->migrate
     if !$self->{migrated} && $self->auto_migrate;
   $self->emit(connection => $dbh);

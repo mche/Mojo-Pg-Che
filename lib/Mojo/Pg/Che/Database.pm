@@ -70,13 +70,25 @@ sub prepare {
   
 }
 
+sub prepare_cached { shift->dbh->prepare_cached(@_); }
+
+my @AUTOLOAD_METHODS = qw(
+selectrow_array
+selectrow_arrayref
+selectrow_hashref
+selectall_arrayref
+selectall_array
+selectall_hashref
+selectcol_arrayref
+);
+
 our $AUTOLOAD;
 sub  AUTOLOAD {
   my ($method) = $AUTOLOAD =~ /([^:]+)$/;
   my $self = shift;
   my $dbh = $self->dbh;
   
-  if ($dbh->can($method) && $method =~ /^select/) {
+  if ($dbh->can($method) && scalar grep $_ eq $method, @AUTOLOAD_METHODS) {
     my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
     
     my $key_field = shift
@@ -85,9 +97,9 @@ sub  AUTOLOAD {
     my $async = delete $attrs->{async};
     my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
     
-    $sth ||= $self->pg->prepare($query, $attrs, 3, $dbh,);
+    $sth ||= $self->prepare($query, $attrs, 3,);
     my $result;
-    $cb = sub {
+    $cb ||= sub {
       my ($db, $err) = map shift, 1..2;
       croak "Error on non-blocking $method: ",$err
         if $err;
@@ -97,7 +109,13 @@ sub  AUTOLOAD {
     
     my @bind = @_;
     
-    return $dbh->$method($sth, $key_field ? ($key_field) : (), $attrs, @bind);
+    $result = $self->query_sth($sth, @bind, $cb ? ($cb) : ());
+    
+    Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
+    
+    (my $fetch_method = $method) =~ s/select/fetch/;;
+    
+    return $result->$fetch_method(defined $key_field ? ($key_field) : ());
   }
   
   die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
