@@ -163,6 +163,7 @@ sub db {
 sub prepare { shift->db->prepare(@_); }
 sub prepare_cached { shift->db->prepare_cached(@_); }
 sub selectrow_hashref { shift->query(@_)->fetchrow_hashref }
+sub selectrow_array { shift->query(@_)->fetchrow_array }
 
 # Patch parent Mojo::Pg::_dequeue
 sub _dequeue {
@@ -176,8 +177,12 @@ sub _dequeue {
     
     my $dbh = $queue->[$i];
     
+    delete $queue->[$i]
+      and next
+      if $dbh->ping;
+    
     return (splice(@$queue, $i, 1))[0]
-      if ! $dbh->{pg_async_status} && $dbh->ping;
+      unless $dbh->{pg_async_status} > 0;
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));

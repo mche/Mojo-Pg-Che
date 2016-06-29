@@ -24,6 +24,14 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select');
 };
 
 $result = $pg->selectrow_hashref('select now() as now, pg_sleep(?)', {async=>1}, (1));
-like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select');
+like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select';
+
+{
+  my @result;
+  for (142..144) {
+    push @result, $pg->selectrow_array('select ?::int', undef, ($_));
+    is scalar @result, 3, 'selectrow_array';
+  }
+};
 
 done_testing();

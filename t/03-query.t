@@ -67,13 +67,11 @@ my $cb = sub {
 
 $result = $pg->db->query('select pg_sleep(?::int), now() as now' => 3, $cb);
 Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
-like($result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok');
+like $result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok';
 
-#~ for (13..17) {
-  $result = $pg->query('select ?::date as d, pg_sleep(?::int)', {async=>1,}, ("01/06/2016", 1), sub {die 'OUH, BUHHH!';});
-  isa_ok($result, 'Mojo::Reactor::Poll');
-  warn $result->{cb_error};
-  #~ like($result->hash->{d}, qr/2016-06-01/, 'date async query ok');
-#~ }
+my $die = 'OUH, BUHHH!';
+my $rc = $pg->query('select ?::date as d, pg_sleep(?::int)', {async=>1,}, ("01/06/2016", 2), sub {die $die});
+isa_ok $rc, 'Mojo::Reactor::Poll';
+like $rc->{cb_error}, qr/$die/;
 
 done_testing();
