@@ -23,15 +23,27 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select');
   
 };
 
-$result = $pg->selectrow_hashref('select now() as now, pg_sleep(?)', {async=>1}, (1));
+$result = $pg->selectrow_hashref('select now() as now, pg_sleep(?)', {Async=>1}, (1));
 like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select';
 
 {
   my @result;
   for (142..144) {
-    push @result, $pg->selectrow_array('select ?::int', undef, ($_));
-    is scalar @result, 3, 'selectrow_array';
+    push @result, $pg->selectrow_array('select ?::int, 100', undef, ($_));
   }
+  is scalar @result, 6, 'selectrow_array';
 };
+
+{
+  my @result;
+  my $sth = $pg->prepare('select ?::int, pg_sleep(1)');
+  for (142..144) {
+    push @result, $pg->selectrow_arrayref($sth, {Async=>1}, ($_));
+  }
+  is scalar @result, 3, 'selectrow_arrayref';
+  is scalar @{$result[2]}, 2, 'selectrow_arrayref';
+};
+
+
 
 done_testing();

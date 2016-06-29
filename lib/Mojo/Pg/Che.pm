@@ -43,20 +43,20 @@ our $VERSION = '0.01';
     # Bloking query
     my $result = $pg->query('select ...', undef, @bind);
     # Non-blocking query
-    my $result = $pg->query('select ...', {async => 1, ...}, @bind);
+    my $result = $pg->query('select ...', {Async => 1, ...}, @bind);
     # Cached sth of query
     my $result = $pg->query('select ...', {cache => 1, ...}, @bind);
     
     # Mojo::Pg style
     my $now = $pg->db->query('select now() as now')->hash->{now};
     # prepared sth
-    my $sth = $pg->db->dbh->prepare('select ...');
+    my $sth = $pg->prepare('select ...');
     # Non-blocking query sth
     my $result = $pg->query($sth, undef, @bind, sub {my ($db, $err, $result) = @_; ...});
     Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
     
     # Result non-blocking query sth
-    my $result = $pg->query($sth, {async => 1,}, @bind,);
+    my $result = $pg->query($sth, {Async => 1,}, @bind,);
     
     
     # DBI style (attr pg_async for non-blocking)
@@ -126,7 +126,7 @@ sub query {
   my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
   
   my $attrs = shift;
-  my $async = delete $attrs->{async};
+  my $async = delete $attrs->{Async};
   
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   my $result;
@@ -162,8 +162,17 @@ sub db {
 
 sub prepare { shift->db->prepare(@_); }
 sub prepare_cached { shift->db->prepare_cached(@_); }
-sub selectrow_hashref { shift->query(@_)->fetchrow_hashref }
+
 sub selectrow_array { shift->query(@_)->fetchrow_array }
+sub selectrow_arrayref { shift->query(@_)->fetchrow_arrayref }
+sub selectrow_hashref { shift->query(@_)->fetchrow_hashref }
+sub selectall_arrayref {
+  my $self = shift;
+  my $attrs = $_[1];
+  my @to_fetch = ();
+  push @to_fetch, delete @$attrs{qw(Slice Columns MaxRows)};
+  $self->query(@_)->fetchall_arrayref(@to_fetch);
+}
 
 # Patch parent Mojo::Pg::_dequeue
 sub _dequeue {

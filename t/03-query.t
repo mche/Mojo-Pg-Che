@@ -70,7 +70,7 @@ Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
 like $result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok';
 
 my $die = 'OUH, BUHHH!';
-my $rc = $pg->query('select ?::date as d, pg_sleep(?::int)', {async=>1,}, ("01/06/2016", 2), sub {die $die});
+my $rc = $pg->query('select ?::date as d, pg_sleep(?::int)', {Async=>1,}, ("01/06/2016", 2), sub {die $die});
 isa_ok $rc, 'Mojo::Reactor::Poll';
 like $rc->{cb_error}, qr/$die/;
 

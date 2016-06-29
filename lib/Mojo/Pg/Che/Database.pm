@@ -86,10 +86,16 @@ sub _AUTOLOAD {
   my ($self, $method) = (shift, shift);
   my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
   
-  my $key_field = shift
+  my @to_fetch = ();
+  
+  push @to_fetch, shift # $key_field 
     if $method eq 'selectall_hashref';
   my $attrs = shift;
-  my $async = delete $attrs->{async};
+  my $async = delete $attrs->{Async};
+  
+  push @to_fetch, delete @$attrs{qw(Slice Columns MaxRows)}
+    if $method eq 'selectall_arrayref';
+  
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   
   $sth ||= $self->prepare($query, $attrs, 3,);
@@ -110,7 +116,7 @@ sub _AUTOLOAD {
   
   (my $fetch_method = $method) =~ s/select/fetch/;;
   
-  return $result->$fetch_method(defined $key_field ? ($key_field) : ());
+  return $result->$fetch_method(@to_fetch);
   
 }
 
