@@ -79,13 +79,14 @@ use Data::Dumper;
   }
   Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
   is scalar @result, 3, 'selectall_arrayref';
-  for (@result) {
-    my $r = $_->fetchall_arrayref({});
+  while (my $r = shift @result) {
+    my $r = $r->fetchall_arrayref({});
     like $r->[0]{c1}, qr/^\d{3}$/, 'selectall_arrayref Slice';
     like $r->[0]{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
   }
-  for (@result) {
-    my $r = $_->fetchall_arrayref([0]);
+  $pg->selectrow_arrayref('select ?::int as c1, now() as c2, pg_sleep(1) as c3', {Async=>1}, (777), $cb);
+  while (my $r = shift @result) {
+    my $r = $r->fetchall_arrayref([0]);
     like $r->[0][0], qr/^\d{3}$/, 'selectall_arrayref Slice';
   }
 };

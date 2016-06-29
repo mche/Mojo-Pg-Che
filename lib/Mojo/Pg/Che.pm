@@ -163,18 +163,13 @@ sub db {
 sub prepare { shift->db->prepare(@_); }
 sub prepare_cached { shift->db->prepare_cached(@_); }
 
-sub selectrow_array { shift->query(@_)->fetchrow_array }
-sub selectrow_arrayref { shift->query(@_)->fetchrow_arrayref }
-sub selectrow_hashref { shift->query(@_)->fetchrow_hashref }
-
+#~ sub selectrow_array { shift->query(@_)->fetchrow_array }
+sub selectrow_array { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_array(@_) }
+#~ sub selectrow_arrayref { shift->query(@_)->fetchrow_arrayref }
+sub selectrow_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_arrayref(@_) }
+#~ sub selectrow_hashref { shift->query(@_)->fetchrow_hashref }
+sub selectrow_hashref { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_hashref(@_) }
 sub selectall_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectall_arrayref(@_) }
-  #~ my $self = shift;
-  #~ my $attrs = $_[1];
-  #~ my @to_fetch = ();
-  #~ push @to_fetch, delete @$attrs{qw(Slice MaxRows)};
-  #~ $to_fetch[0] = delete @$attrs{qw(Columns)};
-  #~ $self->query(@_)->fetchall_arrayref(@to_fetch);
-#~ }
 
 # Patch parent Mojo::Pg::_dequeue
 sub _dequeue {
