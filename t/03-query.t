@@ -45,9 +45,11 @@ for (13..17) {
     die $err if $err;
     push @results, $results;
   };
+  
+  #~ my $sth = $pg->prepare();# DBD::Pg::st execute failed: Cannot execute until previous async query has finished
 
   for (13..17) {
-    $pg->query('select ?::date as d, pg_sleep(?::int)', {cached=>1,}, ("$_/06/2016", 2), $cb);
+    $pg->query('select ?::date as d, pg_sleep(?::int)', {cached=>1,}, ("$_/06/2016", 1), $cb);
   }
   Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
   for (@results) {
@@ -65,7 +67,7 @@ my $cb = sub {
   $result = $results;
 };
 
-$result = $pg->db->query('select pg_sleep(?::int), now() as now' => 3, $cb);
+$result = $pg->db->query('select pg_sleep(?::int), now() as now' => 2, $cb);
 Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
 like $result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok';
 

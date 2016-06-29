@@ -44,15 +44,46 @@ like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select';
   is scalar @{$result[2]}, 2, 'selectrow_arrayref';
 };
 
+
 {
   my @result;
   my $sth = $pg->prepare('select ?::int, now()');
   for (142..144) {
-    push @result, $pg->selectall_arrayref($sth, {Slice=>[1]}, ($_));
+    push @result, $pg->selectall_arrayref($sth, {Columns=>[1]}, ($_));
   }
   is scalar @result, 3, 'selectall_arrayref';
-  is scalar @{$result[2]}, 1, 'selectall_arrayref Slice';
-  like $result[0][0], qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
+  is scalar @{$result[2][0]}, 1, 'selectall_arrayref Slice';
+  #~ warn Dumper $result[2];
+  like $result[0][0][0], qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
+};
+
+
+for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Slice=>{},}, (568),)}) {
+  like $_->{c1}, qr/^\d{3}$/, 'selectall_arrayref Slice';
+  like $_->{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
+}
+
+use Data::Dumper;
+
+{
+  my @result;
+  my $cb = sub {
+    my ($db, $err, $results) = @_;
+    die $err if $err;
+    push @result, $results;
+  };
+  #~ my $sth = $pg->prepare('select ?::int as c1, now() as c2, pg_sleep(1) as c3');
+  # DBD::Pg::st execute failed: Cannot execute until previous async query has finished
+  for (142..144) {
+    $pg->selectall_arrayref('select ?::int as c1, now() as c2, pg_sleep(1) as c3', {}, ($_), $cb);
+  }
+  Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+  is scalar @result, 3, 'selectall_arrayref';
+  for (@result) {
+    my $r = $_->fetchall_arrayref({});
+    like $r->[0]{c1}, qr/^\d{3}$/, 'selectall_arrayref Slice';
+    like $r->[0]{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
+  }
 };
 
 done_testing();

@@ -93,9 +93,14 @@ sub _AUTOLOAD {
   my $attrs = shift;
   my $async = delete $attrs->{Async};
   
-  push @to_fetch, delete @$attrs{qw(Slice Columns MaxRows)}
-    if $method eq 'selectall_arrayref';
-  
+  if ($method eq 'selectall_arrayref') {
+    for (qw(Slice MaxRows)) {
+      push @to_fetch, delete $attrs->{$_}
+        if exists $attrs->{$_};
+    }
+    $to_fetch[0] = delete $attrs->{Columns}
+      if exists $attrs->{Columns};
+  }
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   
   $sth ||= $self->prepare($query, $attrs, 3,);
@@ -114,9 +119,12 @@ sub _AUTOLOAD {
   
   Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
   
-  (my $fetch_method = $method) =~ s/select/fetch/;;
+  (my $fetch_method = $method) =~ s/select/fetch/;
   
-  return $result->$fetch_method(@to_fetch);
+  return $result->$fetch_method(@to_fetch)
+    if ref $result eq $self->result_class;
+  
+  return $result;
   
 }
 
