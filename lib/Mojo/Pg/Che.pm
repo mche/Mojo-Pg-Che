@@ -159,7 +159,8 @@ sub db {
   unless ($dbh) {
     $dbh = $self->_dequeue;
   
-    if ($self->on_connect && @{$self->on_connect} && !($dbh->{$self->dbh_private_key} && $dbh->{$self->dbh_private_key}{on_connect}) {
+    if ( !($dbh->{$self->dbh_private_key} && $dbh->{$self->dbh_private_key}{on_connect})
+        && $self->on_connect && @{$self->on_connect} ) {
       $dbh->do($_)
         and @{ $dbh->{$self->dbh_private_key} ||= {} }{qw(on_connect)}++
         for @{$self->on_connect};
