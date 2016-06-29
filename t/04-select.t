@@ -44,6 +44,15 @@ like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select';
   is scalar @{$result[2]}, 2, 'selectrow_arrayref';
 };
 
-
+{
+  my @result;
+  my $sth = $pg->prepare('select ?::int, now()');
+  for (142..144) {
+    push @result, $pg->selectall_arrayref($sth, {Slice=>[1]}, ($_));
+  }
+  is scalar @result, 3, 'selectall_arrayref';
+  is scalar @{$result[2]}, 1, 'selectall_arrayref Slice';
+  like $result[0][0], qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
+};
 
 done_testing();
