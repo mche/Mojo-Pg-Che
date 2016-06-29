@@ -99,17 +99,13 @@ it under the same terms as Perl itself.
 
 use Carp qw(croak);
 
-my $pkg = __PACKAGE__;
-
 has db_class => sub { require Mojo::Pg::Che::Database; 'Mojo::Pg::Che::Database'; };
-
-#~ has dbi_db_class => 'Mojo::Pg::Che::Db';
 
 has on_connect => sub {[]};
 
 has qw(debug);
 
-has dbh_private_key => $pkg;
+has dbh_private_attr => sub { my $pkg = __PACKAGE__; 'private_'.($pkg =~ s/:+/_/gr); };
 
 sub connect {
   my $self = shift->SUPER::new;
@@ -158,12 +154,17 @@ sub db {
   
   unless ($dbh) {
     $dbh = $self->_dequeue;
+    
+    my $dbh_attr = $dbh->{$self->dbh_private_attr} ||= {};
   
-    if ( !($dbh->{$self->dbh_private_key} && $dbh->{$self->dbh_private_key}{on_connect})
+    if ( !$dbh_attr->{on_connect}
         && $self->on_connect && @{$self->on_connect} ) {
+    
       $dbh->do($_)
-        and @{ $dbh->{$self->dbh_private_key} ||= {} }{qw(on_connect)}++
         for @{$self->on_connect};
+      
+      $dbh_attr->{on_connect}++;
+      
     }
   }
 
