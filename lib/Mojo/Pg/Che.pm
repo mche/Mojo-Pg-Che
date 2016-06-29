@@ -118,7 +118,7 @@ sub connect {
 }
 
 sub query {
-  my ($self,) = (shift,);
+  my $self = shift;
   #~ my ($query, $attrs, @bind) = @_;
   my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
   
@@ -173,6 +173,33 @@ sub db {
 
 sub prepare { shift->db->prepare(@_); }
 
+# Patch Mojo::Pg::_dequeue
+sub _dequeue {
+  my $self = shift;
+
+  #~ while (my $dbh = shift @{$self->{queue} || []}) { return $dbh if $dbh->ping }
+  
+  my $queue = $self->{queue} ||= [];
+  
+  for my $i (0..$#$queue) {
+    my $dbh = $queue->[$i];
+    return (splice(@$queue, $i, 1))[0]
+      if !$dbh->{pg_async_status}
+        && $dbh->ping;
+  }
+  
+  my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
+  warn "DBI->connect $dbh";
+  if (my $path = $self->search_path) {
+    my $search_path = join ', ', map { $dbh->quote_identifier($_) } @$path;
+    $dbh->do("set search_path to $search_path");
+  }
+  ++$self->{migrated} and $self->migrations->migrate
+    if !$self->{migrated} && $self->auto_migrate;
+  $self->emit(connection => $dbh);
+
+  return $dbh;
+}
 
 1; # End of Mojo::Pg::Che
 

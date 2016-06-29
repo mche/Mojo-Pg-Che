@@ -33,6 +33,7 @@ for (13..17) {
 };
 
 
+
 {
   my @results;
   my $cb = sub {
@@ -51,6 +52,7 @@ for (13..17) {
   }
 };
 
+done_testing(); exit;
 
 $result = undef;
 
