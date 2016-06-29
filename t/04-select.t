@@ -14,7 +14,6 @@ my $pg = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8 
 
 my $result;
 $result = $pg->selectrow_hashref('select now() as now',);
-
 like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select');
 
 {
@@ -23,5 +22,8 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select');
   like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now db select');
   
 };
+
+$result = $pg->selectrow_hashref('select now() as now, pg_sleep(?)', {async=>1}, (1));
+like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select');
 
 done_testing();
