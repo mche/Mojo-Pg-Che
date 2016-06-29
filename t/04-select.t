@@ -84,6 +84,10 @@ use Data::Dumper;
     like $r->[0]{c1}, qr/^\d{3}$/, 'selectall_arrayref Slice';
     like $r->[0]{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
   }
+  for (@result) {
+    my $r = $_->fetchall_arrayref([0]);
+    like $r->[0][0], qr/^\d{3}$/, 'selectall_arrayref Slice';
+  }
 };
 
 done_testing();
