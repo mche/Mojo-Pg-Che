@@ -84,7 +84,7 @@ use Data::Dumper;
     like $r->[0]{c1}, qr/^\d{3}$/, 'selectall_arrayref Slice';
     like $r->[0]{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
   }
-  $pg->selectrow_arrayref('select ?::int as c1, now() as c2, pg_sleep(1) as c3', {Async=>1}, (777), $cb);
+  $pg->selectrow_arrayref('select ?::int as c1, now() as c2, pg_sleep(1) as c3', {Async=>1}, (777), $cb); # ожидание асинхронна запустится внутри
   while (my $r = shift @result) {
     my $r = $r->fetchall_arrayref([0]);
     like $r->[0][0], qr/^\d{3}$/, 'selectall_arrayref Slice';
