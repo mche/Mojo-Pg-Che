@@ -5,6 +5,8 @@ use Mojo::Base 'Mojo::Pg::Results';
 #~ sub fetchrow_hashref { shift->sth->fetchrow_hashref }
 #~ sub selectrow_array { shift->sth->selectrow_array }
 
+sub fetchcol_arrayref {1;}
+
 my @AUTOLOAD_METHODS = qw(
 fetchrow_arrayref
 fetchrow_array

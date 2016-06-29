@@ -159,7 +159,7 @@ sub db {
 
 sub prepare { shift->db->prepare(@_); }
 sub prepare_cached { shift->db->prepare_cached(@_); }
-sub selectrow_hashref { shift->query(@_)->fetchrow_hashref  }
+sub selectrow_hashref { shift->query(@_)->fetchrow_hashref }
 
 # Patch Mojo::Pg::_dequeue
 sub _dequeue {
