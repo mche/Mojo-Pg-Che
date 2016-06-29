@@ -52,7 +52,7 @@ sub query_string {
   
   my $dbh = $self->dbh;
   
-  my $sth = $dbh->prepare($query, $attrs, 3);
+  my $sth = $self->prepare($query, $attrs, 3);
   
   return $self->query_sth($sth, @_);
   
