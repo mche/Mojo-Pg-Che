@@ -137,11 +137,8 @@ sub query {
   
   my @bind = @_;
   
-  
-  $sth ||= $self->prepare($query, $attrs, 3,);
-  
-  $result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());
-  #~ else {$result = $self->db->query_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
+  if ($sth) {$result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());}
+  else {$result = $self->db->query_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
   
   Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
 
@@ -169,26 +166,21 @@ sub db {
 }
 
 
-sub prepare {
-  my ($self, $query, $attrs, $flag, $dbh, ) = @_;
-  $dbh ||= $self->_dequeue;
-  
-  return $dbh->prepare_cached($query, $attrs, $flag)
-      if delete $attrs->{cached};
-  return $dbh->prepare($query, $attrs,);
+
+
+1; # End of Mojo::Pg::Che
+
+__END__
+
+
+sub AUTOLOAD {
+  (my $name = our $AUTOLOAD) =~ s/.*:://;
+  no strict 'refs';  # allow symbolic references
+
+  *$AUTOLOAD = sub { print "$name subroutine called\n" };    
+  goto &$AUTOLOAD;   # jump to the new sub
 }
 
-=pod
-
-  sub AUTOLOAD {
-    (my $name = our $AUTOLOAD) =~ s/.*:://;
-    no strict 'refs';  # allow symbolic references
-
-    *$AUTOLOAD = sub { print "$name subroutine called\n" };    
-    goto &$AUTOLOAD;   # jump to the new sub
-  }
-
-=cut
 
 our @DBH_METHODS = qw(selectrow_hashref);
 our $AUTOLOAD;
@@ -213,5 +205,3 @@ sub  AUTOLOAD {
   
 }
 
-
-1; # End of Mojo::Pg::Che

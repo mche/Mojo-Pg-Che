@@ -47,22 +47,26 @@ sub query_sth {
   $self->_watch;
 }
 
-sub query_string0000 {
+sub query_string {
   my ($self, $query, $attrs,) = map shift, 1..3;
   
   my $dbh = $self->dbh;
   
-  #~ $attrs->{pg_async} = PG_ASYNC
-    #~ if ref $_[-1] eq 'CODE';
-  
-  my $sth;
-  if (delete $attrs->{cached}) {
-    $sth = $dbh->prepare_cached();
-  } else {
-    $sth = $dbh->prepare($query, $attrs,);
-  }
+  my $sth = $dbh->prepare($query, $attrs, 3);
   
   return $self->query_sth($sth, @_);
+  
+}
+
+sub prepare {
+  my ($self, $query, $attrs, $flag,)  = @_;
+  
+  my $dbh = $self->dbh;
+  
+  return $dbh->prepare_cached($query, $attrs, $flag)
+    if delete $attrs->{cached};
+  
+  return $dbh->prepare($query, $attrs,);
   
 }
 
