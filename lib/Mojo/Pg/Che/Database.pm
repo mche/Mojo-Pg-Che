@@ -33,10 +33,10 @@ sub query_sth {
     if $self->{waiting};
   
   local $sth->{HandleError} = sub {$_[0] = shortmess $_[0]; 0;};
-  $sth->{pg_async} = PG_ASYNC # $self->dbh->{pg_async_status} == 1 ? PG_OLDQUERY_WAIT : PG_ASYNC # 
-    if $cb;
-  $sth->{pg_async} = 0
-    unless $cb;
+  $sth->{pg_async} = $cb ? PG_ASYNC : 0; # $self->dbh->{pg_async_status} == 1 ? PG_OLDQUERY_WAIT : PG_ASYNC # 
+    #~ if $cb;
+  #~ $sth->{pg_async} = 0
+    #~ unless $cb;
     
   
   
