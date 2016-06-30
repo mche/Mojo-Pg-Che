@@ -140,9 +140,6 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
   is $_->fetchall_hashref('name')->{baz}{name}, 'baz', 'async query result fetchall_hashref'
     for @result;
 
-
-  #~ warn Dumper $pg->selectcol_arrayref($sth, {Columns=>[-2, -1]}, (155, 'baz'));
-  #~ warn Dumper $sth->{Database}->selectcol_arrayref($sth, {Columns=>[-2, -1]}, (155, 'baz'));
 };
 
 #~ use Data::Dumper;
