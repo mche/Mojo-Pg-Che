@@ -1,12 +1,12 @@
 package Mojo::Pg::Che::Database;
 
 use Mojo::Base 'Mojo::Pg::Database';
-#~ use Mojo::Base -base;
 use Carp qw(croak shortmess);
 use DBD::Pg ':async';
 #~ use Mojo::JSON 'to_json';
 
-#~ my $handler_err => ;
+my $handler_err = sub {$_[0] = shortmess $_[0]; 0;};
+has handler_err => sub {$handler_err};
 
 has [qw(dbh pg)];
 
@@ -14,12 +14,6 @@ has result_class => sub {
   require Mojo::Pg::Che::Results;
   'Mojo::Pg::Che::Results';
 };
-
-#~ has mojo_db => sub {
-  #~ my $self = shift;
-  #~ require Mojo::Pg::Database;
-  #~ Mojo::Pg::Database->new(pg=>$self->pg, dbh=>$self->dbh);
-#~ };
 
 sub query_sth {
   my ($self, $sth,) = map shift, 1..2;
@@ -32,13 +26,8 @@ sub query_sth {
   croak 'Non-blocking query already in progress'
     if $self->{waiting};
   
-  local $sth->{HandleError} = sub {$_[0] = shortmess $_[0]; 0;};
+  local $sth->{HandleError} = $self->handler_err;
   $sth->{pg_async} = $cb ? PG_ASYNC : 0; # $self->dbh->{pg_async_status} == 1 ? PG_OLDQUERY_WAIT : PG_ASYNC # 
-    #~ if $cb;
-  #~ $sth->{pg_async} = 0
-    #~ unless $cb;
-    
-  
   
   #~ $sth->execute(map { _json($_) ? to_json $_->{json} : $_ } @_);
   $sth->execute(@_);#binds

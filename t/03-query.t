@@ -78,4 +78,8 @@ my $rc = $pg->query('select ?::date as d, pg_sleep(?::int)', {Async=>1,}, ("01/0
 isa_ok $rc, 'Mojo::Reactor::Poll';
 like $rc->{cb_error}, qr/$die/;
 
+my $sth = $pg->prepare('select 10/?::int');
+$result = eval { $pg->query($sth, undef, (0)) };
+like $@, qr/execute failed:/, 'handler err';
+
 done_testing();
