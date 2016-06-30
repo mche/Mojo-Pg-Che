@@ -32,9 +32,9 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
     my $result = $pg->selectrow_hashref($sth, {Async=>1}, (1));
     like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref';
   }
-  my $result;
-  $result = eval { $pg->selectrow_hashref($sth, undef, (1))};
-  warn $@ if $@;
+  my $result = eval { $pg->selectrow_hashref($sth, undef, (1))};
+  #~ warn $@ if $@;
+  like $@, qr/no statement executing/, 'blocking sth error after async query';
 };
 
 {
@@ -141,7 +141,7 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
   #~ warn Dumper $sth->{Database}->selectcol_arrayref($sth, {Columns=>[-2, -1]}, (155, 'baz'));
 };
 
-use Data::Dumper;
+#~ use Data::Dumper;
 
 {
   my $sql = 'select * FROM (VALUES(1, 200000, 1.2), (2, 400000, 1.4)) AS v (depno, target, increase);';
