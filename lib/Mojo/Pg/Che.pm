@@ -31,12 +31,12 @@ our $VERSION = '0.01';
 
     use Mojo::Pg::Che;
 
-    my $pg = Mojo::Pg::Che->connect("DBI:Pg:dbname=foo;", "pg-user", 'pg-passwd', \%attrs);
+    my $pg = Mojo::Pg::Che->connect("dbname=test;", "postgres", 'pg-pwd', \%attrs);
     # or
     my $pg = Mojo::Pg::Che->new
       ->dsn("DBI:Pg:dbname=test;")
-      ->username("pg-user")
-      ->password('pg-passwd')
+      ->username("postgres")
+      ->password('pg--pw')
       ->options(\%attrs);
     
     my $result = $pg->query('select ...', {<...sth attrs...>}, @bind);
@@ -143,6 +143,8 @@ sub connect {
     my $options = $self->options;
     @$options{ keys %$attrs } = values %$attrs;
   }
+  $self->dsn('DBI:Pg:'.$self->dsn)
+    unless $self->dsn =~ /^DBI:Pg:/;
   return $self;
 }
 

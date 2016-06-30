@@ -2,7 +2,9 @@ use Mojo::Base -strict;
 
 use Test::More;
 
-plan skip_all => 'set TEST_CHE to enable this test' unless $ENV{TEST_CHE};
+plan skip_all => 'set env TEST_PG="<dsn>/<pg_user>/<passwd>" to enable this test' unless $ENV{TEST_PG};
+
+my ($dsn, $user, $pw) = split m|[/]|, $ENV{TEST_PG};
 
 use Mojo::Pg::Che;
 #~ use Scalar::Util 'refaddr';
@@ -11,7 +13,7 @@ my $class = 'Mojo::Pg::Che';
 my $results_class = 'Mojo::Pg::Che::Results';
 
 # 1
-my $pg = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8 => 1,});
+my $pg = $class->connect($dsn, $user, $pw, {pg_enable_utf8 => 1,});
 
 $pg->on(connection=>sub {shift; shift->do('set datestyle to "DMY, ISO";');});
 
