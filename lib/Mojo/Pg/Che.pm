@@ -128,10 +128,6 @@ has db_class => sub {
   'Mojo::Pg::Che::Database';
 };
 
-#~ has on_conf => sub {{
-  #~ connection=>sub {my ($pg, $dbh) = @_;},
-#~ }};
-
 has qw(debug);
 
 #~ has dbh_private_attr => sub { my $pkg = __PACKAGE__; 'private_'.($pkg =~ s/:+/_/gr); };
@@ -168,6 +164,8 @@ sub query {
   
   my @bind = @_;
   
+  #~ $sth ||= $self->prepare($query, $attrs, 3); ?????
+  
   if ($sth) {$result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());}
   else {$result = $self->db->query_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
   
@@ -191,12 +189,14 @@ sub db {
 sub prepare { shift->db->prepare(@_); }
 sub prepare_cached { shift->db->prepare_cached(@_); }
 
-sub selectrow_array { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_array(@_) }
-sub selectrow_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_arrayref(@_) }
-sub selectrow_hashref { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_hashref(@_) }
-sub selectall_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectall_arrayref(@_) }
-sub selectall_hashref { shift->db(ref $_[0] && $_[0]->{Database})->selectall_hashref(@_) }
-sub selectcol_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectcol_arrayref(@_) }
+sub _db_sth {shift->db(ref $_[0] && $_[0]->{Database})}
+
+sub selectrow_array { shift->_db_sth(@_)->selectrow_array(@_) }
+sub selectrow_arrayref { shift->_db_sth(@_)->selectrow_arrayref(@_) }
+sub selectrow_hashref { shift->_db_sth(@_)->selectrow_hashref(@_) }
+sub selectall_arrayref { shift->_db_sth(@_)->selectall_arrayref(@_) }
+sub selectall_hashref { shift->_db_sth(@_)->selectall_hashref(@_) }
+sub selectcol_arrayref { shift->_db_sth(@_)->selectcol_arrayref(@_) }
 
 sub begin_work {croak 'Use $pg->db->tx | $pg->db->begin';}
 sub begin {croak 'Use $pg->db->tx | $pg->db->begin';}
