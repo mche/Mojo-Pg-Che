@@ -4,8 +4,6 @@ use Mojo::Base 'Mojo::EventEmitter';
 use Carp 'croak';
 use DBI;
 use Mojo::Pg::Database;
-use Mojo::Pg::Migrations;
-use Mojo::Pg::PubSub;
 use Mojo::URL;
 use Scalar::Util 'weaken';
 
@@ -13,6 +11,7 @@ has [qw(auto_migrate search_path)];
 has dsn             => 'dbi:Pg:';
 has max_connections => 5;
 has migrations      => sub {
+  require Mojo::Pg::Migrations;
   my $migrations = Mojo::Pg::Migrations->new(pg => shift);
   weaken $migrations->{pg};
   return $migrations;
@@ -22,6 +21,7 @@ has options => sub {
 };
 has [qw(password username)] => '';
 has pubsub => sub {
+  require Mojo::Pg::PubSub;
   my $pubsub = Mojo::Pg::PubSub->new(pg => shift);
   weaken $pubsub->{pg};
   return $pubsub;
@@ -88,6 +88,12 @@ sub _enqueue {
   my $queue = $self->{queue} ||= [];
   push @$queue, $dbh if $dbh->{Active};
   shift @$queue while @$queue > $self->max_connections;
+}
+
+sub import000 {
+  my $proto = shift;
+  warn "Import [@_]";
+  
 }
 
 1;

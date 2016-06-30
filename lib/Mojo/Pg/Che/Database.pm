@@ -26,13 +26,17 @@ sub query_sth {
   
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   
+  #~ croak 'Previous async query has not finished'
+    #~ if $self->dbh->{pg_async_status} == 1;
+  
   croak 'Non-blocking query already in progress'
     if $self->{waiting};
   
   #~ my $dbh = $self->dbh;
   local $sth->{HandleError} = sub {$_[0] = shortmess $_[0]; 0;};
-  $sth->{pg_async} = PG_ASYNC
+  $sth->{pg_async} = PG_ASYNC # $self->dbh->{pg_async_status} == 1 ? PG_OLDQUERY_WAIT : PG_ASYNC # 
     if $cb;
+  
   #~ $sth->execute(map { _json($_) ? to_json $_->{json} : $_ } @_);
   $sth->execute(@_);#binds
   
@@ -64,7 +68,7 @@ sub prepare {
   my $dbh = $self->dbh;
   
   return $dbh->prepare_cached($query, $attrs, $flag)
-    if delete $attrs->{cached};
+    if delete $attrs->{Cached};
   
   return $dbh->prepare($query, $attrs,);
   
@@ -72,7 +76,11 @@ sub prepare {
 
 sub prepare_cached { shift->dbh->prepare_cached(@_); }
 
-my @AUTOLOAD_METHODS = qw(
+sub tx {shift->begin}
+sub commit {croak 'Use $tx = $db->tx; ...; $tx->commit;';}
+sub rollback {croak 'Use $tx = $db->tx; ...; $tx = undef;';}
+
+my @AUTOLOAD_SELECT = qw(
 selectrow_array
 selectrow_arrayref
 selectrow_hashref
@@ -82,7 +90,7 @@ selectall_hashref
 selectcol_arrayref
 );
 
-sub _AUTOLOAD {
+sub _AUTOLOAD_SELECT {
   my ($self, $method) = (shift, shift);
   my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
   
@@ -141,8 +149,8 @@ sub  AUTOLOAD {
   my $self = shift;
   my $dbh = $self->dbh;
   
-  return $self->_AUTOLOAD($method, @_)
-    if ($dbh->can($method) && scalar grep $_ eq $method, @AUTOLOAD_METHODS);
+  return $self->_AUTOLOAD_SELECT($method, @_)
+    if ($dbh->can($method) && scalar grep $_ eq $method, @AUTOLOAD_SELECT);
   
   die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
   

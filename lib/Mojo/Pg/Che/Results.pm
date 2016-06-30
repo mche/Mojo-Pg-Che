@@ -5,7 +5,12 @@ use Mojo::Base 'Mojo::Pg::Results';
 #~ sub fetchrow_hashref { shift->sth->fetchrow_hashref }
 #~ sub selectrow_array { shift->sth->selectrow_array }
 
-sub fetchcol_arrayref {1;}
+sub fetchcol_arrayref {
+  my $self = $shift;
+  my ($columns, $maxrows) = @_;
+  $columns ||= [1];
+  shift->fetchall_arrayref($columns, $maxrows);
+}
 
 my @AUTOLOAD_METHODS = qw(
 fetchrow_arrayref

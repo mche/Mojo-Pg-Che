@@ -45,7 +45,7 @@ our $VERSION = '0.01';
     # Non-blocking query
     my $result = $pg->query('select ...', {Async => 1, ...}, @bind);
     # Cached sth of query
-    my $result = $pg->query('select ...', {cache => 1, ...}, @bind);
+    my $result = $pg->query('select ...', {Cached => 1, ...}, @bind);
     
     # Mojo::Pg style
     my $now = $pg->db->query('select now() as now')->hash->{now};
@@ -62,6 +62,30 @@ our $VERSION = '0.01';
     # DBI style (attr pg_async for non-blocking)
     my $now = $pg->selectrow_hashref('select pg_sleep(?), now() as now', {pg_async => 1,}, (3))->{now};
 
+=head1 Non-blocking queryes cases
+
+Depends on $attr->{Async} and callback:
+
+1. $attr->{Async} set to 1. None $cb. Callback will create and Mojo::IOLoop will auto start. Method C<<->query()>> will return result object. Methods C<<->select...()>> will return there perl structures.
+
+2. $attr->{Async} not set. $cb defined. All ->query() and ->select...() methods will return reactor object and results pass to $cb. You need start Mojo::IOLoop:
+
+  my @results;
+  my $cb = sub {
+    my ($db, $err, $results) = @_;
+    die $err if $err;
+    push @results, $results;
+  };
+  $pg->query('select ?::date as d, pg_sleep(?::int)', undef, ("2016-06-$_", 1), $cb)
+    for 17..23;
+  Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+  like($_->hash->{d}, qr/2016-06-\d+/, 'correct async query')
+    for @results;
+
+
+3. $attr->{Async} set to 1. $cb defined. Mojo::IOLoop will auto start. Results pass to $cb.
+
+
 =head1 METHODS
 
 =head2 new
@@ -74,7 +98,7 @@ DBI-style of new object instance. See L<DBI#connect>
 
 =head3 query
 
-Is a shortcut of L<Mojo::Pg::Database#query>.
+Is same as L<Mojo::Pg::Database#query>.
 
 Blocking query without attr B<pg_async>.
 
@@ -165,13 +189,18 @@ sub db {
 sub prepare { shift->db->prepare(@_); }
 sub prepare_cached { shift->db->prepare_cached(@_); }
 
-#~ sub selectrow_array { shift->query(@_)->fetchrow_array }
 sub selectrow_array { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_array(@_) }
-#~ sub selectrow_arrayref { shift->query(@_)->fetchrow_arrayref }
 sub selectrow_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_arrayref(@_) }
-#~ sub selectrow_hashref { shift->query(@_)->fetchrow_hashref }
 sub selectrow_hashref { shift->db(ref $_[0] && $_[0]->{Database})->selectrow_hashref(@_) }
 sub selectall_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectall_arrayref(@_) }
+sub selectall_hashref { shift->db(ref $_[0] && $_[0]->{Database})->selectall_hashref(@_) }
+sub selectcol_arrayref { shift->db(ref $_[0] && $_[0]->{Database})->selectcol_arrayref(@_) }
+
+sub begin_work {croak 'Use $pg->db->tx | $pg->db->begin';}
+sub begin {croak 'Use $pg->db->tx | $pg->db->begin';}
+sub tx {croak 'Use $pg->db->tx | $pg->db->begin';}
+sub commit {croak 'Use $tx = $db->tx; ...; $tx->commit;';}
+sub rollback {croak 'Use $tx = $db->tx; ...; $tx = undef;';}
 
 # Patch parent Mojo::Pg::_dequeue
 sub _dequeue {
@@ -207,7 +236,8 @@ sub _dequeue {
   return $dbh;
 }
 
-1; # End of Mojo::Pg::Che
+
+1;
 
 __END__
 
@@ -220,27 +250,29 @@ sub AUTOLOAD {
   goto &$AUTOLOAD;   # jump to the new sub
 }
 
+my @AUTOLOAD_SELECT = qw(
+selectrow_array
+selectrow_arrayref
+selectrow_hashref
+selectall_arrayref
+selectall_array
+selectall_hashref
+selectcol_arrayref
+);
 
-our @DBH_METHODS = qw(selectrow_hashref);
 our $AUTOLOAD;
 sub  AUTOLOAD {
   my ($method) = $AUTOLOAD =~ /([^:]+)$/;
   my $self = shift;
   
-  if ($method =~ /^select/) {
-    my $sth = ref $_[0] && shift;
-    my $dbh = $sth->{Database}
-      if $sth;
-    
-    my $db = $self->db($dbh);
-    
-    $db->dbh->can($method)
-      or croak "Method [$method] not implemented";
-    
-    return $db->$method($sth ? ($sth) : (), @_);
-  }
+  my $db = $self->db(ref $_[0] && $_[0]->{Database});
+  
+  return $db->$method(@_)
+    if ($db->can($method) && scalar grep $_ eq $method, @AUTOLOAD_SELECT);
   
   die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
+  
+}
   
 }
 

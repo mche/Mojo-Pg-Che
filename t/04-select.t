@@ -65,7 +65,7 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
   like $_->{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
 }
 
-use Data::Dumper;
+
 
 {
   my @result;
@@ -92,5 +92,44 @@ use Data::Dumper;
     like $r->[0][0], qr/^\d{3}$/, 'selectall_arrayref Slice';
   }
 };
+
+use Data::Dumper;
+
+{
+  my @result;
+  my $cb = sub {
+    my ($db, $err, $results) = @_;
+    die $err if $err;
+    push @result, $results;
+  };
+  my $sql = 'select ?::int as "ид", ?::text as name, pg_sleep(1) as sleep';
+  my $keyfield = 'ид';
+  utf8::encode($keyfield);
+  for (1..1) {
+    my $r = $pg->selectall_hashref($sql, undef, {KeyField=>$keyfield}, ($_, 'foo'));
+    is $r->{$_}{name}, 'foo', 'blocking selectall_hashref string';
+  }
+  my $sth = $pg->prepare($sql);
+  for (1..1) {
+    my $r = $pg->selectall_hashref($sth, $keyfield, undef, ($_, 'foo'));
+    is $r->{$_}{name}, 'foo', 'blocking selectall_hashref sth';
+  }
+  for (3..5) {
+    my $r = $pg->selectall_hashref($sql, undef, {KeyField=>$keyfield, Async=>1,}, ($_, 'bar'));
+    is $r->{$_}{name}, 'bar', 'async selectall_hashref string';
+  }
+  for (17..17) {
+    my $r = $pg->selectall_hashref($sql, undef, {Cached=>1,}, ($_, 'baz'), $cb);
+    $r = $pg->query($sql, {Cached=>1,}, ($_, 'baz'), $cb);
+    $r = $pg->selectcol_arrayref($sql, {Cached=>1,}, ($_, 'baz'), $cb);
+  }
+  Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+  is scalar @result, 3, 'async query cb  -attr';
+  is $_->fetchall_hashref('name')->{baz}{name}, 'baz', 'async query result fetchall_hashref'
+    for @result;
+  
+  warn Dumper $_->fetchcol_arrayref for @result;
+}
+
 
 done_testing();

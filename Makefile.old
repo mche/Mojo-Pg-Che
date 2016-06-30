@@ -167,7 +167,13 @@ O_FILES  =
 H_FILES  = 
 MAN1PODS = 
 MAN3PODS = README.pod \
-	lib/Mojo/Pg/Che.pm
+	lib/Mojo/Pg.pm \
+	lib/Mojo/Pg/Che.pm \
+	lib/Mojo/Pg/Database.pm \
+	lib/Mojo/Pg/Migrations.pm \
+	lib/Mojo/Pg/PubSub.pm \
+	lib/Mojo/Pg/Results.pm \
+	lib/Mojo/Pg/Transaction.pm
 
 # Where is the Config information that we are using/depend on
 CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
@@ -191,18 +197,36 @@ PERL_ARCHIVE_AFTER =
 
 
 TO_INST_PM = README.pod \
+	lib/Mojo/Pg.pm \
 	lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pm \
-	lib/Mojo/Pg/Che/Results.pm
+	lib/Mojo/Pg/Che/Results.pm \
+	lib/Mojo/Pg/Database.pm \
+	lib/Mojo/Pg/Migrations.pm \
+	lib/Mojo/Pg/PubSub.pm \
+	lib/Mojo/Pg/Results.pm \
+	lib/Mojo/Pg/Transaction.pm
 
 PM_TO_BLIB = README.pod \
 	$(INST_LIB)/Mojo/Pg/README.pod \
+	lib/Mojo/Pg.pm \
+	blib/lib/Mojo/Pg.pm \
 	lib/Mojo/Pg/Che.pm \
 	blib/lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pm \
 	blib/lib/Mojo/Pg/Che/Database.pm \
 	lib/Mojo/Pg/Che/Results.pm \
-	blib/lib/Mojo/Pg/Che/Results.pm
+	blib/lib/Mojo/Pg/Che/Results.pm \
+	lib/Mojo/Pg/Database.pm \
+	blib/lib/Mojo/Pg/Database.pm \
+	lib/Mojo/Pg/Migrations.pm \
+	blib/lib/Mojo/Pg/Migrations.pm \
+	lib/Mojo/Pg/PubSub.pm \
+	blib/lib/Mojo/Pg/PubSub.pm \
+	lib/Mojo/Pg/Results.pm \
+	blib/lib/Mojo/Pg/Results.pm \
+	lib/Mojo/Pg/Transaction.pm \
+	blib/lib/Mojo/Pg/Transaction.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -427,10 +451,22 @@ POD2MAN = $(POD2MAN_EXE)
 
 manifypods : pure_all  \
 	README.pod \
-	lib/Mojo/Pg/Che.pm
+	lib/Mojo/Pg.pm \
+	lib/Mojo/Pg/Che.pm \
+	lib/Mojo/Pg/Database.pm \
+	lib/Mojo/Pg/Migrations.pm \
+	lib/Mojo/Pg/PubSub.pm \
+	lib/Mojo/Pg/Results.pm \
+	lib/Mojo/Pg/Transaction.pm
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) -u \
 	  README.pod $(INST_MAN3DIR)/Mojo::Pg::README.$(MAN3EXT) \
-	  lib/Mojo/Pg/Che.pm $(INST_MAN3DIR)/Mojo::Pg::Che.$(MAN3EXT) 
+	  lib/Mojo/Pg.pm $(INST_MAN3DIR)/Mojo::Pg.$(MAN3EXT) \
+	  lib/Mojo/Pg/Che.pm $(INST_MAN3DIR)/Mojo::Pg::Che.$(MAN3EXT) \
+	  lib/Mojo/Pg/Database.pm $(INST_MAN3DIR)/Mojo::Pg::Database.$(MAN3EXT) \
+	  lib/Mojo/Pg/Migrations.pm $(INST_MAN3DIR)/Mojo::Pg::Migrations.$(MAN3EXT) \
+	  lib/Mojo/Pg/PubSub.pm $(INST_MAN3DIR)/Mojo::Pg::PubSub.$(MAN3EXT) \
+	  lib/Mojo/Pg/Results.pm $(INST_MAN3DIR)/Mojo::Pg::Results.$(MAN3EXT) \
+	  lib/Mojo/Pg/Transaction.pm $(INST_MAN3DIR)/Mojo::Pg::Transaction.$(MAN3EXT) 
 
 
 
@@ -488,7 +524,7 @@ realclean_subdirs :
 # Delete temporary files (via clean) and also delete dist files
 realclean purge ::  clean realclean_subdirs
 	- $(RM_F) \
-	  $(MAKEFILE_OLD) $(FIRST_MAKEFILE) 
+	  $(FIRST_MAKEFILE) $(MAKEFILE_OLD) 
 	- $(RM_RF) \
 	  $(DISTVNAME) 
 
@@ -878,9 +914,15 @@ ppd :
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
 	  README.pod $(INST_LIB)/Mojo/Pg/README.pod \
+	  lib/Mojo/Pg.pm blib/lib/Mojo/Pg.pm \
 	  lib/Mojo/Pg/Che.pm blib/lib/Mojo/Pg/Che.pm \
 	  lib/Mojo/Pg/Che/Database.pm blib/lib/Mojo/Pg/Che/Database.pm \
-	  lib/Mojo/Pg/Che/Results.pm blib/lib/Mojo/Pg/Che/Results.pm 
+	  lib/Mojo/Pg/Che/Results.pm blib/lib/Mojo/Pg/Che/Results.pm \
+	  lib/Mojo/Pg/Database.pm blib/lib/Mojo/Pg/Database.pm \
+	  lib/Mojo/Pg/Migrations.pm blib/lib/Mojo/Pg/Migrations.pm \
+	  lib/Mojo/Pg/PubSub.pm blib/lib/Mojo/Pg/PubSub.pm \
+	  lib/Mojo/Pg/Results.pm blib/lib/Mojo/Pg/Results.pm \
+	  lib/Mojo/Pg/Transaction.pm blib/lib/Mojo/Pg/Transaction.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 
