@@ -32,7 +32,9 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
     my $result = $pg->selectrow_hashref($sth, {Async=>1}, (1));
     like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref';
   }
-  
+  my $result;
+  $result = eval { $pg->selectrow_hashref($sth, undef, (1))};
+  warn $@ if $@;
 };
 
 {
