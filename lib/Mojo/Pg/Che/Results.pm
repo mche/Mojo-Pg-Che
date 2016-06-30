@@ -6,10 +6,10 @@ use Mojo::Base 'Mojo::Pg::Results';
 #~ sub selectrow_array { shift->sth->selectrow_array }
 
 sub fetchcol_arrayref {
-  my $self = $shift;
+  my $self = shift;
   my ($columns, $maxrows) = @_;
   $columns ||= [1];
-  shift->fetchall_arrayref($columns, $maxrows);
+  $self->fetchall_arrayref($columns, $maxrows);
 }
 
 my @AUTOLOAD_METHODS = qw(
