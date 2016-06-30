@@ -89,19 +89,26 @@ sub _AUTOLOAD {
   my @to_fetch = ();
   
   push @to_fetch, shift # $key_field 
-    if $method eq 'selectall_hashref';
-  my $attrs = shift;
-  my $async = delete $attrs->{Async};
+    if $method eq 'selectall_hashref' && ! ref $_[0];
   
-  if ($method eq 'selectall_arrayref') {
-    for (qw(Slice MaxRows)) {
-      push @to_fetch, delete $attrs->{$_}
-        if exists $attrs->{$_};
-    }
-    $to_fetch[0] = delete $attrs->{Columns}
-      if exists $attrs->{Columns};
+  my $attrs = shift;
+  
+  
+  $to_fetch[0] = delete $attrs->{KeyField}
+      if exists $attrs->{KeyField};
+  
+  #~ if ($method eq 'selectall_arrayref') {
+  for (qw(Slice MaxRows)) {
+    push @to_fetch, delete $attrs->{$_}
+      if exists $attrs->{$_};
   }
+  $to_fetch[0] = delete $attrs->{Columns}
+    if exists $attrs->{Columns};
+  #~ }
+  
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
+  
+  my $async = delete $attrs->{Async};
   
   $sth ||= $self->prepare($query, $attrs, 3,);
   my $result;

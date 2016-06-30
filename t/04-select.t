@@ -10,7 +10,9 @@ use Mojo::Pg::Che;
 my $class = 'Mojo::Pg::Che';
 
 # 1
-my $pg = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8 => 1,})->on_connect(['set datestyle to "DMY, ISO";']);
+my $pg = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8 => 1,});
+
+$pg->on(connection=>sub {shift; shift->do('set datestyle to "DMY, ISO";');});
 
 my $result;
 $result = $pg->selectrow_hashref('select now() as now',);

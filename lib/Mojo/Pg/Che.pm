@@ -104,7 +104,9 @@ has db_class => sub {
   'Mojo::Pg::Che::Database';
 };
 
-has on_connect => sub {[]};
+#~ has on_conf => sub {{
+  #~ connection=>sub {my ($pg, $dbh) = @_;},
+#~ }};
 
 has qw(debug);
 
@@ -197,13 +199,6 @@ sub _dequeue {
     #~ my $search_path = join ', ', map { $dbh->quote_identifier($_) } @$path;
     #~ $dbh->do("set search_path to $search_path");
   #~ }
-  
-  if ( $self->on_connect && @{$self->on_connect} ) {
-  
-    $dbh->do($_)
-      for @{$self->on_connect};
-    
-  }
   
   ++$self->{migrated} and $self->migrations->migrate
     if !$self->{migrated} && $self->auto_migrate;

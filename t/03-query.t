@@ -11,7 +11,9 @@ my $class = 'Mojo::Pg::Che';
 my $results_class = 'Mojo::Pg::Che::Results';
 
 # 1
-my $pg = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8 => 1,})->on_connect(['set datestyle to "DMY, ISO";']);
+my $pg = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8 => 1,});
+
+$pg->on(connection=>sub {shift; shift->do('set datestyle to "DMY, ISO";');});
 
 my $result;
 $result = $pg->query('select now() as now',);

@@ -14,7 +14,7 @@ my $pg1 = $class->connect("DBI:Pg:dbname=test;", "guest", undef, {pg_enable_utf8
 # 2
 my $pg2 = $class->new->dsn("DBI:Pg:dbname=test;")->username("guest")->password(undef);
 # 3
-my $pg3 = $class->new('postgresql://guest@/test')->on_connect(['set search_path to public;']);
+my $pg3 = $class->new('postgresql://guest@/test');
 
 isa_ok($pg1, $class);
 isa_ok($pg2, $class);
