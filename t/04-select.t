@@ -16,24 +16,31 @@ $pg->on(connection=>sub {shift; shift->do('set datestyle to "DMY, ISO";');});
 
 my $result;
 $result = $pg->selectrow_hashref('select now() as now',);
-like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select');
+like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
 
 {
   my $db = $pg->db;
   my $result = $db->selectrow_hashref('select now() as now',);
-  like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now db select');
+  like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking db select');
   
 };
 
-$result = $pg->selectrow_hashref('select now() as now, pg_sleep(?)', {Async=>1}, (1));
-like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now top select';
+{
+  my $sth = $pg->prepare('select now() as now, pg_sleep(?)');
+  like $pg->selectrow_hashref($sth, undef, (1))->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref';
+  for (1..3) {
+    my $result = $pg->selectrow_hashref($sth, {Async=>1}, (1));
+    like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref';
+  }
+  
+};
 
 {
   my @result;
   for (142..144) {
     push @result, $pg->selectrow_array('select ?::int, 100', undef, ($_));
   }
-  is scalar @result, 6, 'selectrow_array';
+  is scalar @result, 6, 'blocking pg selectrow_array';
 };
 
 {
@@ -93,7 +100,6 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
   }
 };
 
-use Data::Dumper;
 
 {
   my @result;
@@ -121,15 +127,38 @@ use Data::Dumper;
   for (17..17) {
     my $r = $pg->selectall_hashref($sql, undef, {Cached=>1,}, ($_, 'baz'), $cb);
     $r = $pg->query($sql, {Cached=>1,}, ($_, 'baz'), $cb);
-    $r = $pg->selectcol_arrayref($sql, {Cached=>1,}, ($_, 'baz'), $cb);
+    $r = $pg->selectrow_array($sql, {Cached=>1,}, ($_, 'baz'), $cb);
   }
   Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
   is scalar @result, 3, 'async query cb  -attr';
   is $_->fetchall_hashref('name')->{baz}{name}, 'baz', 'async query result fetchall_hashref'
     for @result;
+
+
+  #~ warn Dumper $pg->selectcol_arrayref($sth, {Columns=>[-2, -1]}, (155, 'baz'));
+  #~ warn Dumper $sth->{Database}->selectcol_arrayref($sth, {Columns=>[-2, -1]}, (155, 'baz'));
+};
+
+use Data::Dumper;
+
+{
+  my $sql = 'select * FROM (VALUES(1, 200000, 1.2), (2, 400000, 1.4)) AS v (depno, target, increase);';
+  my $sth = $pg->prepare($sql);
+  my $res;
+  my $cb = sub {
+    my ($db, $err, $results) = @_;
+    die $err if $err;
+    $res =  $results;
+  };
+  #~ warn Dumper 
+  $pg->selectcol_arrayref($sth, {Async=>1, Columns=>[2]}, $cb);
+
+  is $res->fetchcol_arrayref([2])->[1], '400000';
+  #~ warn Dumper $res->fetchcol_arrayref([2]);
+  is $sth->{Database}->selectcol_arrayref($sql, {Columns=>[2]},)->[1], '400000';
   
-  warn Dumper $_->fetchcol_arrayref for @result;
 }
+
 
 
 done_testing();

@@ -2,14 +2,12 @@ package Mojo::Pg::Che::Results;
 
 use Mojo::Base 'Mojo::Pg::Results';
 
-#~ sub fetchrow_hashref { shift->sth->fetchrow_hashref }
-#~ sub selectrow_array { shift->sth->selectrow_array }
-
 sub fetchcol_arrayref {
   my $self = shift;
   my ($columns, $maxrows) = @_;
-  $columns ||= [1];
-  $self->fetchall_arrayref($columns, $maxrows);
+  $columns ||= [0];
+  map $columns->[$_]--, 0..$#$columns;
+  [map @$_, @{$self->sth->fetchall_arrayref($columns, $maxrows)}];
 }
 
 my @AUTOLOAD_METHODS = qw(
