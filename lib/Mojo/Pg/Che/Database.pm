@@ -108,8 +108,8 @@ sub _AUTOLOAD_SELECT {
   
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   
-  my $async = delete $attrs->{Async};
-  
+  my $async = delete $attrs->{Async} || delete $attrs->{pg_async};
+
   $sth ||= $self->prepare($query, $attrs, 3,);
   my $result;
   $cb ||= sub {

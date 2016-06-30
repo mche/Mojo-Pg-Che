@@ -154,7 +154,7 @@ sub query {
   my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
   
   my $attrs = shift;
-  my $async = delete $attrs->{Async};
+  my $async = delete $attrs->{Async} || delete $attrs->{pg_async};
   
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   my $result;

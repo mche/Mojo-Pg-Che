@@ -157,7 +157,7 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
     $res =  $results;
   };
   #~ warn Dumper 
-  $pg->selectcol_arrayref($sth, {Async=>1, Columns=>[2]}, $cb);
+  $pg->selectcol_arrayref($sth, {pg_async=>1, Columns=>[2]}, $cb);
 
   is $res->fetchcol_arrayref([2])->[1], '400000';
   #~ warn Dumper $res->fetchcol_arrayref([2]);
