@@ -32,9 +32,11 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
     my $result = $pg->selectrow_hashref($sth, {Async=>1}, (1));
     like $result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref';
   }
-  my $result = eval { $pg->selectrow_hashref($sth, undef, (1))};
+  eval { like $pg->selectrow_hashref($sth, undef, (1))->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref' };
   #~ warn $@ if $@;
-  like $@, qr/no statement executing/, 'blocking sth error after async query';
+  like $@, qr/no statement executing/, 'blocking sth error after async query'
+    if $@;
+  
 };
 
 {
@@ -157,7 +159,9 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
 
   is $res->fetchcol_arrayref([2])->[1], '400000';
   #~ warn Dumper $res->fetchcol_arrayref([2]);
-  is $sth->{Database}->selectcol_arrayref($sql, {Columns=>[2]},)->[1], '400000';
+  eval {is $sth->{Database}->selectcol_arrayref($sth, {Columns=>[2],},)->[1], '400000'};
+  like $@, qr/no statement executing/, 'blocking sth finished error after async query'
+    if $@;
   
 }
 
