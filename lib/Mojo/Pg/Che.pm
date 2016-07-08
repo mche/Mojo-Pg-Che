@@ -128,6 +128,9 @@ has db_class => sub {
   'Mojo::Pg::Che::Database';
 };
 
+has options => sub {
+  {AutoCommit => 1, AutoInactiveDestroy => 1, PrintError => 0, RaiseError => 1, ShowErrorStatement => 1,};
+};
 has qw(debug);
 
 #~ has dbh_private_attr => sub { my $pkg = __PACKAGE__; 'private_'.($pkg =~ s/:+/_/gr); };
