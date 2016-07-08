@@ -129,7 +129,7 @@ has db_class => sub {
 };
 
 has options => sub {
-  {AutoCommit => 1, AutoInactiveDestroy => 1, PrintError => 0, RaiseError => 1, ShowErrorStatement => 1,};
+  {AutoCommit => 1, AutoInactiveDestroy => 1, PrintError => 0, RaiseError => 1, ShowErrorStatement => 1, pg_enable_utf8 => 1,};
 };
 has qw(debug);
 
