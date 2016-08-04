@@ -128,14 +128,15 @@ has db_class => sub {
   'Mojo::Pg::Che::Database';
 };
 
-has tx_class => sub {
-  require Mojo::Pg::Transaction;
-  'Mojo::Pg::Transaction';
-}
+#~ has tx_class => sub {
+  #~ require Mojo::Pg::Transaction;
+  #~ 'Mojo::Pg::Transaction';
+#~ };
 
 has options => sub {
   {AutoCommit => 1, AutoInactiveDestroy => 1, PrintError => 0, RaiseError => 1, ShowErrorStatement => 1, pg_enable_utf8 => 1,};
 };
+
 has qw(debug);
 
 #~ has dbh_private_attr => sub { my $pkg = __PACKAGE__; 'private_'.($pkg =~ s/:+/_/gr); };
@@ -213,9 +214,7 @@ sub begin_work {shift->begin}
 sub begin {
   my $self = shift;
   my $db = $self->db;
-  #~ $db->dbh->begin_work;
-  $db->{tx} = $self->tx_class->new(db => $self);
-  weaken $db->{tx};
+  $db->begin;
   return $db;
 }
 
