@@ -11,11 +11,14 @@ my $pg = Mojo::Pg::Che->connect($dsn, $user, $pw,);
 
 my $seq = 'test_seq_remove_it';
 
-subtest 'destroy tx' => sub {
+my $seq_tx = sub {
   my $tx = $pg->begin;
   my $rc = $tx->do("create sequence $seq;");
   is $rc, '0E0', 'do';
+  return $tx;
 };
+
+$seq_tx->();
 
 eval { $pg->query("select * from $seq;") };
 like $@, qr/execute failed/, 'right rollback';
