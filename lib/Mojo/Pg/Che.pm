@@ -70,11 +70,28 @@ our $VERSION = '0.02';
     
     my $now = $pg->selectrow_array('select now() as now');
 
+=head2 Transaction syntax
+
+  eval {
+    my $tx = $pg->begin;
+    $tx->query('insert into foo (name) values (?)', 'bar');
+    $tx->do('insert into foo (name) values (?)', 'baz');
+    $tx->commit;
+  };
+  die $@ if $@;
+  
+  my $tx = $pg->begin;
+  $tx->do('insert into foo (name) values (?)', 'bazzzz');
+  $tx->rollback;
+  $tx->begin;
+  $tx->query('insert into foo (name) values (?)', 'barrr');
+  $tx->commit;
+
 =head1 Non-blocking query cases
 
 Depends on $attr->{Async} and callback:
 
-1. $attr->{Async} set to 1. None $cb. Callback will create and Mojo::IOLoop will auto start. Method C<<->query()>> will return result object. Methods C<<->select...()>> will return there perl structures.
+1. $attr->{Async} set to 1. None $cb. Callback will create and Mojo::IOLoop will auto start. Method C<< ->query() >> will return result object. Methods C<<->select...()>> will return there perl structures.
 
 2. $attr->{Async} not set. $cb defined. All ->query() and ->select...() methods will return reactor object and results pass to $cb. You need start Mojo::IOLoop:
 
@@ -136,18 +153,11 @@ has db_class => sub {
   'Mojo::Pg::Che::Database';
 };
 
-#~ has tx_class => sub {
-  #~ require Mojo::Pg::Transaction;
-  #~ 'Mojo::Pg::Transaction';
-#~ };
-
 has options => sub {
   {AutoCommit => 1, AutoInactiveDestroy => 1, PrintError => 0, RaiseError => 1, ShowErrorStatement => 1, pg_enable_utf8 => 1,};
 };
 
-has qw(debug);
-
-#~ has dbh_private_attr => sub { my $pkg = __PACKAGE__; 'private_'.($pkg =~ s/:+/_/gr); };
+has [qw(debug)];
 
 sub connect {
   my $self = shift->SUPER::new;

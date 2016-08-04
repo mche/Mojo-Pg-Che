@@ -74,6 +74,9 @@ sub do { shift->dbh->do(@_); }
 sub tx {shift->begin}
 sub begin {
   my $self = shift;
+  return $self->{tx}
+    if $self->{tx};
+  
   $self->{tx} = $self->SUPER::begin;
   return $self->{tx};
 }
