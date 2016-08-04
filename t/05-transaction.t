@@ -18,11 +18,17 @@ my $seq_tx = sub {
   return $tx;
 };
 
+my $seq = sub { $pg->query("select * from $seq;") };
+
 $seq_tx->();
 
-eval { $pg->query("select * from $seq;") };
+eval { $seq->() };
 like $@, qr/execute failed/, 'right rollback';
 
+#~ $fail_seq->();
 
+
+#~ my $tx = $seq_tx->();
+#~ $
 
 done_testing();
