@@ -171,6 +171,11 @@ DBI style quering. See L<DBI#selectcol_arrayref>. Blocking|non-blocking, query s
 
 DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement handler.
 
+=head2 begin
+
+Start transaction and return new <Mojo::Pg::Che::Database> object which attr C< {tx} > is a <Mojo::Pg::Transaction> object. Sinonyms are: C<< ->tx >> and C<< ->begin_work >>.
+
+
 =head1 AUTHOR
 
 Михаил Че (Mikhail Che), C<< <mche[-at-]cpan.org> >>
