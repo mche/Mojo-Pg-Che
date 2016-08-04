@@ -8,9 +8,9 @@ WriteMakefile(
     AUTHOR           => q{Михаил Че (Mikhail Che) <mche[-at-]cpan.org>},
     VERSION_FROM     => 'lib/Mojo/Pg/Che.pm',
     ABSTRACT_FROM    => 'lib/Mojo/Pg/Che.pm',
-    LICENSE          => 'artistic_2',
+    LICENSE          => 'perl',
     PL_FILES         => {},
-    MIN_PERL_VERSION => 5.006,
+    # MIN_PERL_VERSION => 5.006,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
     },
@@ -18,9 +18,8 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
-        #'ABC'              => 1.6,
-        #'Foo::Bar::Module' => 5.0401,
+        'Mojo::Pg'              => 2.28,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'Mojo-Pg-Che-*' },
+    #~clean => { FILES => 'Mojo-Pg-Che-*' },
 );
