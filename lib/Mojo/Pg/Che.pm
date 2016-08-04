@@ -55,7 +55,7 @@ our $VERSION = '0.03';
     my $sth = $pg->prepare_cached('select ...');
     
     # Non-blocking query sth
-    my $result = $pg->query($sth, undef, @bind, sub {my ($db, $err, $result) = @_; ...});
+    my $r = $pg->query($sth, undef, @bind, sub {my ($db, $err, $result) = @_; ...});
     Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
     
     # Result non-blocking query sth
