@@ -9,7 +9,7 @@ my $db_class = 'Mojo::Pg::Che::Database';
 #~ my $mojo_db_class = 'Mojo::Pg::Database';
 my $dbi_db_class = 'DBI::db';
 
-plan skip_all => 'set env TEST_PG="<dsn>/<pg_user>/<passwd>" to enable this test' unless $ENV{TEST_PG};
+plan skip_all => 'set env TEST_PG="DBI:Pg:dbname=<...>/<pg_user>/<passwd>" to enable this test' unless $ENV{TEST_PG};
 
 my ($dsn, $user, $pw) = split m|[/]|, $ENV{TEST_PG};
 
