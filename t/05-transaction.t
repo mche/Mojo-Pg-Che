@@ -25,10 +25,9 @@ $seq_tx->();
 eval { $seq->() };
 like $@, qr/execute failed/, 'right rollback';
 
-#~ $fail_seq->();
+my $tx = $seq_tx->();
+$tx->commit;
 
-
-#~ my $tx = $seq_tx->();
-#~ $
+warn $seq->();
 
 done_testing();
