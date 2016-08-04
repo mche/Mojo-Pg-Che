@@ -11,18 +11,15 @@ my $pg = Mojo::Pg::Che->connect($dsn, $user, $pw,);
 
 my $seq = 'test_seq_remove_it';
 
-subtest 'tx1' => sub {
+subtest 'destroy tx' => sub {
   my $tx = $pg->begin;
   my $rc = $tx->do("create sequence $seq;");
   is $rc, '0E0', 'do';
-}
+};
 
-warn $tx->query("select * from $seq;");
+eval { $pg->query("select * from $seq;") };
+like $@, qr/execute failed/, 'right rollback';
 
 
-
-# Invalid connection string
-#~ eval { Mojo::Pg->new('http://localhost:3000/test') };
-#~ like $@, qr/Invalid PostgreSQL connection string/, 'right error';
 
 done_testing();
