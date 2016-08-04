@@ -69,7 +69,16 @@ sub prepare {
 sub prepare_cached { shift->dbh->prepare_cached(@_); }
 
 sub tx {shift->begin}
-sub commit {croak 'Use $tx = $db->tx; ...; $tx->commit;';}
+sub begin {
+  my $self = shift;
+  $self->{tx} = $self->SUPER::begin;
+  weaken $self->{tx};
+  return $self->{tx};
+}
+sub commit {
+  my $self = shift;
+  my $
+}
 sub rollback {croak 'Use $tx = $db->tx; ...; $tx = undef;';}
 
 my @AUTOLOAD_SELECT = qw(

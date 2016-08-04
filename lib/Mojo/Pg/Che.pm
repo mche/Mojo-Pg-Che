@@ -128,6 +128,11 @@ has db_class => sub {
   'Mojo::Pg::Che::Database';
 };
 
+has tx_class => sub {
+  require Mojo::Pg::Transaction;
+  'Mojo::Pg::Transaction';
+}
+
 has options => sub {
   {AutoCommit => 1, AutoInactiveDestroy => 1, PrintError => 0, RaiseError => 1, ShowErrorStatement => 1, pg_enable_utf8 => 1,};
 };
@@ -201,11 +206,20 @@ sub selectall_arrayref { shift->_db_sth(@_)->selectall_arrayref(@_) }
 sub selectall_hashref { shift->_db_sth(@_)->selectall_hashref(@_) }
 sub selectcol_arrayref { shift->_db_sth(@_)->selectcol_arrayref(@_) }
 
-sub begin_work {croak 'Use $pg->db->tx | $pg->db->begin';}
-sub begin {croak 'Use $pg->db->tx | $pg->db->begin';}
-sub tx {croak 'Use $pg->db->tx | $pg->db->begin';}
-sub commit {croak 'Use $tx = $db->tx; ...; $tx->commit;';}
-sub rollback {croak 'Use $tx = $db->tx; ...; $tx = undef;';}
+#~ sub begin_work {croak 'Use $pg->db->tx | $pg->db->begin';}
+sub tx {shift->begin}
+sub begin_work {shift->begin}
+sub begin {
+  my $self = shift;
+  my $db = $self->db;
+  #~ $db->dbh->begin_work;
+  $db->{tx} = $self->tx_class->new(db => $self);
+  weaken $db->{tx};
+  return $db;
+}
+
+sub commit {croak 'Use $tx = $pg->tx; ...; $tx->commit;';}
+sub rollback {croak 'Use $tx = $pg->tx; ...; $tx->rollback;';}
 
 # Patch parent Mojo::Pg::_dequeue
 sub _dequeue {
