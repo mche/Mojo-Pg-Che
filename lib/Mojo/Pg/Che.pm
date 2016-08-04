@@ -121,7 +121,7 @@ DBI-style of new object instance. See L<DBI#connect>
 
 =head2 query
 
-Like L<Mojo::Pg::Database#query> but input params - L<#Params-for-quering-methods>
+Like L<Mojo::Pg::Database#query> but input params - L<Mojo::Pg::Che#Params-for-quering-methods>
 
 Blocking query without attr B<Async> or callback.
 
@@ -141,31 +141,31 @@ Prepare and return DBI cached statement handler for query string.
 
 =head2 selectrow_array
 
-DBI style quering. See L<DBI#selectrow_array>. Blocking|non-blocking, query string|statement handler. Input params - L<#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectrow_array>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectrow_arrayref
 
-DBI style quering. See L<DBI#selectrow_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectrow_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectrow_hashref
 
-DBI style quering. See L<DBI#selectrow_hashref>. Blocking|non-blocking, query string|statement handler. Input params - L<#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectrow_hashref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectall_arrayref
 
-DBI style quering. See L<DBI#selectall_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectall_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectall_hashref
 
-DBI style quering. See L<DBI#selectall_hashref>. Blocking|non-blocking, query string|statement handler. Input params - L<#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectall_hashref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectcol_arrayref
 
-DBI style quering. See L<DBI#selectcol_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectcol_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 do
 
-DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement handler. Input params - L<#Params-for-quering-methods>.
+DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 begin
 
