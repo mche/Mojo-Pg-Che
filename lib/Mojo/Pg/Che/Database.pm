@@ -75,7 +75,7 @@ sub tx {shift->begin}
 sub begin {
   my $self = shift;
   $self->{tx} = $self->SUPER::begin;
-  weaken $self->{tx};
+  #~ weaken $self->{tx};
   return $self->{tx};
 }
 
