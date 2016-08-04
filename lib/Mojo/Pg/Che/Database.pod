@@ -89,15 +89,15 @@ DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement 
 
 =head2 begin
 
-Start transaction for given object which attr C< {tx} > is a <Mojo::Pg::Transaction> object. Sinonyms are: C<< ->tx >> and C<< ->begin_work >>.
+Start transaction for given object which attr C< {tx} > is a L<Mojo::Pg::Transaction> object. Sinonyms are: C<< ->tx >> and C<< ->begin_work >>.
 
 =head2 commit
 
-Commit transaction and drop attr C< {tx} > for destroing <Mojo::Pg::Transaction> object.
+Commit transaction and drop attr C< {tx} > for destroing L<Mojo::Pg::Transaction> object.
 
 =head2 rollback
 
-Rollback transaction and drop attr C< {tx} > for destroing <Mojo::Pg::Transaction> object.
+Rollback transaction and drop attr C< {tx} > for destroing L<Mojo::Pg::Transaction> object.
 
 =head1 Params for quering methods
 
