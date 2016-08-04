@@ -125,9 +125,51 @@ DBI-style of new object instance. See L<DBI#connect>
 
 Is same as L<Mojo::Pg::Database#query>.
 
-Blocking query without attr B<pg_async>.
+Blocking query without attr B<Async> or callback.
 
-Non-blocking query with attr B<pg_async>.
+Non-blocking query with attr B<Async> or callback.
+
+Statement handler as first param is allow.
+
+=head3 db
+
+Parent method of L<Mojo::Pg#db>.
+
+=head3 prepare
+
+Prepare and return DBI statement handler for query string.
+
+=head3 prepare_cached
+
+Prepare and return DBI cached statement handler for query string.
+
+=head3 selectrow_array
+
+DBI style quering. See L<DBI#selectrow_array>. Blocking|non-blocking, query string|statement handler.
+
+=head3 selectrow_arrayref
+
+DBI style quering. See L<DBI#selectrow_arrayref>. Blocking|non-blocking, query string|statement handler.
+
+=head3 selectrow_hashref
+
+DBI style quering. See L<DBI#selectrow_hashref>. Blocking|non-blocking, query string|statement handler.
+
+=head3 selectall_arrayref
+
+DBI style quering. See L<DBI#selectall_arrayref>. Blocking|non-blocking, query string|statement handler.
+
+=head3 selectall_hashref
+
+DBI style quering. See L<DBI#selectall_hashref>. Blocking|non-blocking, query string|statement handler.
+
+=head3 selectcol_arrayref
+
+DBI style quering. See L<DBI#selectcol_arrayref>. Blocking|non-blocking, query string|statement handler.
+
+=head3 do
+
+DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement handler.
 
 =head1 AUTHOR
 
@@ -193,8 +235,8 @@ sub query {
   
   #~ $sth ||= $self->prepare($query, $attrs, 3); ?????
   
-  if ($sth) {$result = $self->db($sth->{Database})->query_sth($sth, @bind, $cb ? ($cb) : ());}
-  else {$result = $self->db->query_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
+  if ($sth) {$result = $self->db($sth->{Database})->execute_sth($sth, @bind, $cb ? ($cb) : ());}
+  else {$result = $self->db->execute_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
   
   Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
 

@@ -31,7 +31,7 @@ $tx->commit;
 $res = eval { $seq->() };
 is $@, '', 'right commit';
 
-my $rc = $tx->do("drop sequence $seq_name;");
+my $rc = $tx->do("drop sequence $seq_name; sleep 1;", {Async=>1});
 is $rc, '0E0', 'do drop';
 
 

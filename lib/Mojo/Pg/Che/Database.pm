@@ -16,7 +16,7 @@ has result_class => sub {
   'Mojo::Pg::Che::Results';
 };
 
-sub query_sth {
+sub execute_sth {
   my ($self, $sth,) = map shift, 1..2;
   
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
@@ -44,14 +44,14 @@ sub query_sth {
   $self->_watch;
 }
 
-sub query_string {
+sub execute_string {
   my ($self, $query, $attrs,) = map shift, 1..3;
   
   my $dbh = $self->dbh;
   
   my $sth = $self->prepare($query, $attrs, 3);
   
-  return $self->query_sth($sth, @_);
+  return $self->execute_sth($sth, @_);
   
 }
 
@@ -69,7 +69,7 @@ sub prepare {
 
 sub prepare_cached { shift->dbh->prepare_cached(@_); }
 
-sub do { shift->dbh->do(@_); }
+#~ sub do { shift->dbh->do(@_); }
 
 sub tx {shift->begin}
 sub begin {
@@ -105,6 +105,7 @@ selectall_arrayref
 selectall_array
 selectall_hashref
 selectcol_arrayref
+do
 );
 
 sub _AUTOLOAD_SELECT {
@@ -147,9 +148,9 @@ sub _AUTOLOAD_SELECT {
   
   my @bind = @_;
   
-  $result = $self->query_sth($sth, @bind, $cb ? ($cb) : ());
+  $result = $self->execute_sth($sth, @bind, $cb ? ($cb) : ());
   
-  Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
+  Mojo::IOLoop->start if $async && ! Mojo::IOLoop->is_running;
   
   (my $fetch_method = $method) =~ s/select/fetch/;
   

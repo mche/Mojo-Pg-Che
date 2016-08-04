@@ -10,6 +10,12 @@ sub fetchcol_arrayref {
   [map @$_, @{$self->sth->fetchall_arrayref($columns, $maxrows)}];
 }
 
+sub do {
+  my $self = shift;
+  my $rows = $self->sth->rows;
+  ($rows == 0) ? "0E0" : $rows; # always return true if no error
+}
+
 my @AUTOLOAD_METHODS = qw(
 fetchrow_arrayref
 fetchrow_array
