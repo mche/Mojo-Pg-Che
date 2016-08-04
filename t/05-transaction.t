@@ -14,7 +14,7 @@ my $seq_name = 'test_seq_remove_it';
 my $seq_tx = sub {
   my $tx = $pg->begin;
   my $rc = $tx->do("create sequence $seq_name;");
-  is $rc, '0E0', 'do';
+  is $rc, '0E0', 'do create';
   return $tx;
 };
 
@@ -22,13 +22,20 @@ my $seq = sub { $pg->query("select * from $seq_name;") };
 
 $seq_tx->();
 
-eval { $seq->() };
+my $res = eval { $seq->() };
 like $@, qr/execute failed/, 'right rollback';
 
 my $tx = $seq_tx->();
 $tx->commit;
 
-my $res = eval { $seq->() };
+$res = eval { $seq->() };
 is $@, '', 'right commit';
+
+my $rc = $tx->do("drop sequence $seq_name;");
+is $rc, '0E0', 'do drop';
+
+
+$res = eval { $seq->() };
+like $@, qr/execute failed/, 'right autocommit';
 
 done_testing();
