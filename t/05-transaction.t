@@ -9,16 +9,16 @@ my ($dsn, $user, $pw) = split m|[/]|, $ENV{TEST_PG};
 
 my $pg = Mojo::Pg::Che->connect($dsn, $user, $pw,);
 
-my $seq = 'test_seq_remove_it';
+my $seq_name = 'test_seq_remove_it';
 
 my $seq_tx = sub {
   my $tx = $pg->begin;
-  my $rc = $tx->do("create sequence $seq;");
+  my $rc = $tx->do("create sequence $seq_name;");
   is $rc, '0E0', 'do';
   return $tx;
 };
 
-my $seq = sub { $pg->query("select * from $seq;") };
+my $seq = sub { $pg->query("select * from $seq_name;") };
 
 $seq_tx->();
 
@@ -29,6 +29,6 @@ my $tx = $seq_tx->();
 $tx->commit;
 
 my $res = eval { $seq->() };
-is $@, undef, 'right commit';
+is $@, '', 'right commit';
 
 done_testing();
