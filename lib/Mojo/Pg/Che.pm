@@ -236,8 +236,8 @@ sub begin {
   return $db;
 }
 
-sub commit {croak 'Use $tx = $pg->tx; ...; $tx->commit;';}
-sub rollback {croak 'Use $tx = $pg->tx; ...; $tx->rollback;';}
+sub commit {croak 'Use: $tx = $pg->begin; $tx->do(...); $tx->commit;';}
+sub rollback {croak 'Use: $tx = $pg->begin; $tx->do(...); $tx->rollback;';}
 
 # Patch parent Mojo::Pg::_dequeue
 sub _dequeue {
