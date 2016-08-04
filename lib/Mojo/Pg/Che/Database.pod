@@ -44,13 +44,13 @@ See L<Mojo::Pg::Database#SYNOPSIS>
 
 =head1 Non-blocking query cases
 
-See L<Mojo::Pg::Che>.
+See L<Mojo::Pg::Che#Non-blocking-query-cases>.
 
 =head1 METHODS
 
 =head2 new
 
-Parent method of L<Mojo::Pg::Database#new>
+L<Mojo::Pg::Database#new>
 
 =head2 prepare
 
