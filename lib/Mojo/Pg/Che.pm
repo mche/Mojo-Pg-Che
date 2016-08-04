@@ -276,40 +276,4 @@ sub _dequeue {
 
 1;
 
-__END__
-
-
-sub AUTOLOAD {
-  (my $name = our $AUTOLOAD) =~ s/.*:://;
-  no strict 'refs';  # allow symbolic references
-
-  *$AUTOLOAD = sub { print "$name subroutine called\n" };    
-  goto &$AUTOLOAD;   # jump to the new sub
-}
-
-my @AUTOLOAD_SELECT = qw(
-selectrow_array
-selectrow_arrayref
-selectrow_hashref
-selectall_arrayref
-selectall_array
-selectall_hashref
-selectcol_arrayref
-);
-
-our $AUTOLOAD;
-sub  AUTOLOAD {
-  my ($method) = $AUTOLOAD =~ /([^:]+)$/;
-  my $self = shift;
-  
-  my $db = $self->db(ref $_[0] && $_[0]->{Database});
-  
-  return $db->$method(@_)
-    if ($db->can($method) && scalar grep $_ eq $method, @AUTOLOAD_SELECT);
-  
-  die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
-  
-}
-  
-}
 
