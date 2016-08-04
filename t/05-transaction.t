@@ -28,6 +28,7 @@ like $@, qr/execute failed/, 'right rollback';
 my $tx = $seq_tx->();
 $tx->commit;
 
-warn $seq->();
+my $res = eval { $seq->() };
+is $@, undef, 'right commit';
 
 done_testing();
