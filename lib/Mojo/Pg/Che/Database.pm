@@ -3,7 +3,7 @@ package Mojo::Pg::Che::Database;
 use Mojo::Base 'Mojo::Pg::Database';
 use Carp qw(croak shortmess);
 use DBD::Pg ':async';
-use Scalar::Util 'weaken';
+#~ use Scalar::Util 'weaken';
 #~ use Mojo::JSON 'to_json';
 
 my $handler_err = sub {$_[0] = shortmess $_[0]; 0;};
@@ -75,7 +75,6 @@ sub tx {shift->begin}
 sub begin {
   my $self = shift;
   $self->{tx} = $self->SUPER::begin;
-  #~ weaken $self->{tx};
   return $self->{tx};
 }
 
@@ -90,7 +89,7 @@ sub rollback {
   my $self = shift;
   my $tx = delete $self->{tx}
     or return;
-  warn "TX destroy";
+  #~ warn "TX destroy";
   $tx = undef;# DESTROY
   
 }

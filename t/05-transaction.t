@@ -9,11 +9,17 @@ my ($dsn, $user, $pw) = split m|[/]|, $ENV{TEST_PG};
 
 my $pg = Mojo::Pg::Che->connect($dsn, $user, $pw,);
 
-my $tx = $pg->begin;
+my $seq = 'test_seq_remove_it';
 
-my $rc = $tx->do('create sequence test_che_seq;');
+subtest 'tx1' => sub {
+  my $tx = $pg->begin;
+  my $rc = $tx->do("create sequence $seq;");
+  is $rc, '0E0', 'do';
+}
 
-is $rc, '0E0', 'do';
+warn $tx->query("select * from $seq;");
+
+
 
 # Invalid connection string
 #~ eval { Mojo::Pg->new('http://localhost:3000/test') };
