@@ -69,6 +69,8 @@ sub prepare {
 
 sub prepare_cached { shift->dbh->prepare_cached(@_); }
 
+sub do { shift->dbh->do(@_); }
+
 sub tx {shift->begin}
 sub begin {
   my $self = shift;

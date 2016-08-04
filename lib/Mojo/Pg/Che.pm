@@ -205,6 +205,7 @@ sub selectrow_hashref { shift->_db_sth(@_)->selectrow_hashref(@_) }
 sub selectall_arrayref { shift->_db_sth(@_)->selectall_arrayref(@_) }
 sub selectall_hashref { shift->_db_sth(@_)->selectall_hashref(@_) }
 sub selectcol_arrayref { shift->_db_sth(@_)->selectcol_arrayref(@_) }
+sub do { shift->_db_sth(@_)->do(@_) }
 
 #~ sub begin_work {croak 'Use $pg->db->tx | $pg->db->begin';}
 sub tx {shift->begin}
