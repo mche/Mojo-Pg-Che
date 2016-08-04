@@ -107,7 +107,7 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
 };
 
 
-{
+subtest 'selectall_hashref' => sub {
   my @result;
   my $cb = sub {
     my ($db, $err, $results) = @_;
@@ -144,7 +144,7 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
 
 #~ use Data::Dumper;
 
-{
+subtest 'fetchcol_arrayref'=> sub {
   my $sql = 'select * FROM (VALUES(1, 200000, 1.2), (2, 400000, 1.4)) AS v (depno, target, increase);';
   my $sth = $pg->prepare($sql);
   my $res;
@@ -162,7 +162,15 @@ for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Sl
   like $@, qr/no statement executing/, 'blocking sth finished error after async query'
     if $@;
   
-}
+};
+
+subtest 'selectrow_array'=> sub {
+  my $now = $pg->selectrow_array('select now()');
+  like $now, qr/\d{4}-\d{2}-\d{2}/, 'selectrow_array';
+};
+
+
+
 
 
 

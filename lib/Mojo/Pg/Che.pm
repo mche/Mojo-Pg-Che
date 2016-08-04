@@ -38,19 +38,22 @@ our $VERSION = '0.02';
       ->username("postgres")
       ->password('pg--pw')
       ->options(\%attrs);
-    
-    my $result = $pg->query('select ...', {<...sth attrs...>}, @bind);
+
     # Bloking query
     my $result = $pg->query('select ...', undef, @bind);
+    
     # Non-blocking query
     my $result = $pg->query('select ...', {Async => 1, ...}, @bind);
-    # Cached sth of query
+    
+    # Cached query
     my $result = $pg->query('select ...', {Cached => 1, ...}, @bind);
     
-    # Mojo::Pg style
-    my $now = $pg->db->query('select now() as now')->hash->{now};
-    # prepared sth
+    # prepare sth
     my $sth = $pg->prepare('select ...');
+    
+    # cached sth
+    my $sth = $pg->prepare_cached('select ...');
+    
     # Non-blocking query sth
     my $result = $pg->query($sth, undef, @bind, sub {my ($db, $err, $result) = @_; ...});
     Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
@@ -58,11 +61,16 @@ our $VERSION = '0.02';
     # Result non-blocking query sth
     my $result = $pg->query($sth, {Async => 1,}, @bind,);
     
+    # Mojo::Pg style
+    my $now = $pg->db->query('select now() as now')->hash->{now};
     
-    # DBI style (attr pg_async for non-blocking)
-    my $now = $pg->selectrow_hashref('select pg_sleep(?), now() as now', {pg_async => 1,}, (3))->{now};
+    # DBI style
+    my $now = $pg->selectrow_hashref('select now() as now')->{now};
+    my $now = $pg->db->selectrow_hashref('select now() as now')->{now};
+    
+    my $now = $pg->selectrow_array('select now() as now');
 
-=head1 Non-blocking queryes cases
+=head1 Non-blocking query cases
 
 Depends on $attr->{Async} and callback:
 
