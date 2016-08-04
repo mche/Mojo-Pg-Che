@@ -121,7 +121,7 @@ Parent method of L<Mojo::Pg#new>
 
 DBI-style of new object instance. See L<DBI#connect>
 
-=head3 query
+=head2 query
 
 Is same as L<Mojo::Pg::Database#query>.
 
@@ -131,43 +131,43 @@ Non-blocking query with attr B<Async> or callback.
 
 Statement handler as first param is allow.
 
-=head3 db
+=head2 db
 
 Parent method of L<Mojo::Pg#db>.
 
-=head3 prepare
+=head2 prepare
 
 Prepare and return DBI statement handler for query string.
 
-=head3 prepare_cached
+=head2 prepare_cached
 
 Prepare and return DBI cached statement handler for query string.
 
-=head3 selectrow_array
+=head2 selectrow_array
 
 DBI style quering. See L<DBI#selectrow_array>. Blocking|non-blocking, query string|statement handler.
 
-=head3 selectrow_arrayref
+=head2 selectrow_arrayref
 
 DBI style quering. See L<DBI#selectrow_arrayref>. Blocking|non-blocking, query string|statement handler.
 
-=head3 selectrow_hashref
+=head2 selectrow_hashref
 
 DBI style quering. See L<DBI#selectrow_hashref>. Blocking|non-blocking, query string|statement handler.
 
-=head3 selectall_arrayref
+=head2 selectall_arrayref
 
 DBI style quering. See L<DBI#selectall_arrayref>. Blocking|non-blocking, query string|statement handler.
 
-=head3 selectall_hashref
+=head2 selectall_hashref
 
 DBI style quering. See L<DBI#selectall_hashref>. Blocking|non-blocking, query string|statement handler.
 
-=head3 selectcol_arrayref
+=head2 selectcol_arrayref
 
 DBI style quering. See L<DBI#selectcol_arrayref>. Blocking|non-blocking, query string|statement handler.
 
-=head3 do
+=head2 do
 
 DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement handler.
 
