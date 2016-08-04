@@ -11,8 +11,9 @@ my $pg = Mojo::Pg::Che->connect($dsn, $user, $pw,);
 
 my $tx = $pg->begin;
 
-$tx->do('create sequence test_che_seq;');
+warn $tx->do('create sequence test_che_seq;');
 
+is 1,1, '1';
 
 # Invalid connection string
 #~ eval { Mojo::Pg->new('http://localhost:3000/test') };

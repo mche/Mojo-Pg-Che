@@ -90,6 +90,7 @@ sub rollback {
   my $self = shift;
   my $tx = delete $self->{tx}
     or return;
+  warn "TX destroy";
   $tx = undef;# DESTROY
   
 }
