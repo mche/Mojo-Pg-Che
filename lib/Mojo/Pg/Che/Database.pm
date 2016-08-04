@@ -3,6 +3,7 @@ package Mojo::Pg::Che::Database;
 use Mojo::Base 'Mojo::Pg::Database';
 use Carp qw(croak shortmess);
 use DBD::Pg ':async';
+use Scalar::Util 'weaken';
 #~ use Mojo::JSON 'to_json';
 
 my $handler_err = sub {$_[0] = shortmess $_[0]; 0;};
@@ -75,11 +76,21 @@ sub begin {
   weaken $self->{tx};
   return $self->{tx};
 }
+
 sub commit {
   my $self = shift;
-  my $
+  my $tx = delete $self->{tx}
+    or return;
+  $tx->commit;
 }
-sub rollback {croak 'Use $tx = $db->tx; ...; $tx = undef;';}
+
+sub rollback {
+  my $self = shift;
+  my $tx = delete $self->{tx}
+    or return;
+  $tx = undef;# DESTROY
+  
+}
 
 my @AUTOLOAD_SELECT = qw(
 selectrow_array
@@ -189,6 +200,14 @@ sub _watch {
       $self->_unwatch unless $self->{waiting} || $self->is_listening;
     }
   )->watch($self->{handle}, 1, 0);
+}
+
+sub DESTROY {
+  my $self = shift;
+  
+  $self->rollback;
+  
+  $self->SUPER::DESTROY;
 }
 
 1;
