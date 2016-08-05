@@ -337,7 +337,7 @@ sub _dequeue {
   return $dbh;
 }
 
-sub _enqueue {
+sub _enqueue0000 {
   my ($self, $dbh) = @_;
   my $queue = $self->{queue} ||= [];
   push @$queue, $dbh
