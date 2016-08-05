@@ -15,7 +15,7 @@ Mojo::Pg::Che::Database - mix of parent Mojo::Pg::Database and DBI.pm
 
 =head1 SYNOPSIS
 
-See L<Mojo::Pg::Database#SYNOPSIS>
+First see parent L<Mojo::Pg::Database#SYNOPSIS>
 
     my $db = $pg->db;
     

@@ -18,11 +18,11 @@ Mojo::Pg::Che - mix of parent Mojo::Pg and DBI.pm
 
 =head1 VERSION
 
-Version 0.06
+Version 0.061
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.061';
 
 
 =head1 SYNOPSIS
