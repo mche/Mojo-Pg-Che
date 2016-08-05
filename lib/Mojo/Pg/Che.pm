@@ -315,14 +315,14 @@ sub _dequeue {
       unless $dbh->ping;
     
     #~ say STDERR "DBH [$dbh] из пула" and
-    #~ delete $queue->[$i]
-    say STDERR "Async: $dbh->{pg_async_status}";
-     return $dbh #(splice(@$queue, $i, 1))[0]
+    return delete $queue->[$i]
+    #~ say STDERR "Async: $dbh->{pg_async_status}";
+     #~ return $dbh #(splice(@$queue, $i, 1))[0]
       unless $dbh->{pg_async_status} > 0;
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
-  say STDERR "НОвое [$dbh] соединение";
+  #~ say STDERR "НОвое [$dbh] соединение";
   
 
   #~ if (my $path = $self->search_path) {
@@ -337,6 +337,13 @@ sub _dequeue {
   return $dbh;
 }
 
+sub _enqueue {
+  my ($self, $dbh) = @_;
+  my $queue = $self->{queue} ||= [];
+  push @$queue, $dbh
+    if $dbh->{Active} && @$queue < $self->max_connections;
+  #~ shift @$queue while @$queue > $self->max_connections;
+}
 
 1;
 
