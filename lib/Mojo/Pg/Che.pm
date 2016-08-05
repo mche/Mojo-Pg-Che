@@ -170,7 +170,7 @@ DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement 
 
 =head2 begin
 
-Start transaction and return new <Mojo::Pg::Che::Database> object which attr C< {tx} > is a <Mojo::Pg::Transaction> object. Sinonyms are: C<< ->tx >> and C<< ->begin_work >>.
+Start transaction and return new L<Mojo::Pg::Che::Database> object which attr C< {tx} > is a L<Mojo::Pg::Transaction> object. Sinonyms are: C<< ->tx >> and C<< ->begin_work >>.
 
 =head1 Params for quering methods
 
