@@ -311,7 +311,7 @@ sub _dequeue {
     
     #~ delete $queue->[$i]
       #~ and next
-      unless $dbh->ping;
+      #~ unless $dbh->ping;
     
     #~ say STDERR "DBH [$dbh] из пула" and
     #~ return delete $queue->[$i] #(splice(@$queue, $i, 1))[0]
