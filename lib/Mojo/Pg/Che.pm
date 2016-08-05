@@ -18,11 +18,11 @@ Mojo::Pg::Che - mix of parent Mojo::Pg and DBI.pm
 
 =head1 VERSION
 
-Version 0.052
+Version 0.06
 
 =cut
 
-our $VERSION = '0.052';
+our $VERSION = '0.06';
 
 
 =head1 SYNOPSIS
@@ -307,13 +307,16 @@ sub _dequeue {
   for my $i (0..$#$queue) {
     
     my $dbh = $queue->[$i];
-  
-  #~ while (my ($i, $dbh) = each @{$self->{queue} || []}) {
-    splice(@$queue, $i, 1)
-    #~ delete $queue->[$i]
-      unless $dbh->{pg_async_status} > 0;
     
-    return $dbh if $dbh->ping;
+    #~ warn "pg_async_status: ", $dbh->{pg_async_status} and
+    next
+      if $dbh->{pg_async_status} && $dbh->{pg_async_status} > 0;
+    
+    splice(@$queue, $i, 1);    #~ delete $queue->[$i]
+    
+    #~ warn "queue-- $dbh", scalar @$queue and 
+    return $dbh
+      if $dbh->ping;
     
   }
   
@@ -333,9 +336,10 @@ sub _dequeue {
   return $dbh;
 }
 
-sub _enqueue0000 {
+sub _enqueue {
   my ($self, $dbh) = @_;
   my $queue = $self->{queue} ||= [];
+  #~ warn "queue++ $dbh:", scalar @$queue and
   push @$queue, $dbh
     if $dbh->{Active} && @$queue < $self->max_connections;
   #~ shift @$queue while @$queue > $self->max_connections;
