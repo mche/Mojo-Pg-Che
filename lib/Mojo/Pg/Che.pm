@@ -304,21 +304,17 @@ sub _dequeue {
   #~ while (my $dbh = shift @{$self->{queue} || []}) { return $dbh if $dbh->ping }
   
   my $queue = $self->{queue} ||= [];
+  for my $i (0..$#$queue) {
+    
+    my $dbh = $queue->[$i];
   
-  while (my ($i, $dbh) = each @$queue) {
-  #~ for my $i (0..$#$queue) {
-    
-    #~ my $dbh = $queue->[$i];
-    
-    delete $queue->[$i]
-      and next
-      unless $dbh->ping;
-    
-    #~ say STDERR "DBH [$dbh] из пула" and
-    return delete $queue->[$i]
-    #~ say STDERR "Async: $dbh->{pg_async_status}";
-     #~ return $dbh #(splice(@$queue, $i, 1))[0]
+  #~ while (my ($i, $dbh) = each @{$self->{queue} || []}) {
+    splice(@$queue, $i, 1)
+    #~ delete $queue->[$i]
       unless $dbh->{pg_async_status} > 0;
+    
+    return $dbh if $dbh->ping;
+    
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
