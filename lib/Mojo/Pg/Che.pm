@@ -305,7 +305,7 @@ sub _dequeue {
   
   my $queue = $self->{queue} ||= [];
   
-  while (my ($i, $dbh) = each $queue) {
+  while (my ($i, $dbh) = each @$queue) {
   #~ for my $i (0..$#$queue) {
     
     #~ my $dbh = $queue->[$i];
@@ -322,7 +322,7 @@ sub _dequeue {
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
-  #~ say STDERR "НОвое [$dbh] соединение";
+  say STDERR "НОвое [$dbh] соединение";
   
 
   #~ if (my $path = $self->search_path) {
