@@ -305,7 +305,7 @@ sub _dequeue {
   
   my $queue = $self->{queue} ||= [];
   
-  while (($i, $dbh) = each $queue) {
+  while (my ($i, $dbh) = each $queue) {
   #~ for my $i (0..$#$queue) {
     
     #~ my $dbh = $queue->[$i];
