@@ -315,8 +315,8 @@ sub _dequeue {
       unless $dbh->ping;
     
     #~ say STDERR "DBH [$dbh] из пула" and
-    delete $queue->[$i]
-     and return $dbh #(splice(@$queue, $i, 1))[0]
+    #~ delete $queue->[$i]
+     return $dbh #(splice(@$queue, $i, 1))[0]
       unless $dbh->{pg_async_status} > 0;
   }
   
