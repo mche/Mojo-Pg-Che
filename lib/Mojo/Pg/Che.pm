@@ -316,6 +316,7 @@ sub _dequeue {
     
     #~ say STDERR "DBH [$dbh] из пула" and
     #~ delete $queue->[$i]
+    say STDERR "Async: $dbh->{pg_async_status}";
      return $dbh #(splice(@$queue, $i, 1))[0]
       unless $dbh->{pg_async_status} > 0;
   }
