@@ -313,13 +313,13 @@ sub _dequeue {
       and next
       unless $dbh->ping;
     
-    say STDERR "DBH [$dbh] из пула"
-      and return delete $queue->[$i] #(splice(@$queue, $i, 1))[0]
+    #~ say STDERR "DBH [$dbh] из пула" and
+    return delete $queue->[$i] #(splice(@$queue, $i, 1))[0]
       unless $dbh->{pg_async_status} > 0;
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
-  say STDERR "НОвое [$dbh] соединение";
+  #~ say STDERR "НОвое [$dbh] соединение";
   
 
   #~ if (my $path = $self->search_path) {
