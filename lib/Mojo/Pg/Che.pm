@@ -301,7 +301,7 @@ sub rollback {croak 'Use: $tx = $pg->begin; $tx->do(...); $tx->rollback;';}
 sub _dequeue {
   my $self = shift;
 
-  while (my $dbh = shift @{$self->{queue} || []}) { return $dbh if $dbh->ping }
+  #~ while (my $dbh = shift @{$self->{queue} || []}) { return $dbh if $dbh->ping }
   
   my $queue = $self->{queue} ||= [];
   
