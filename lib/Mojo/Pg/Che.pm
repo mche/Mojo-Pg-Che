@@ -120,14 +120,6 @@ All methods from parent module L<Mojo::Pg> are inherits and implements the follo
 
 DBI-style of new object instance. See L<DBI#connect>
 
-=head2 query
-
-Like L<Mojo::Pg::Database#query> but input params - L<Mojo::Pg::Che#Params-for-quering-methods>
-
-Blocking query without attr B<Async> or callback.
-
-Non-blocking query with attr B<Async> or callback.
-
 =head2 db
 
 Overriden method of L<Mojo::Pg#db>. Because can first input param - DBI database handler (when prepared statement used).
@@ -140,33 +132,41 @@ Prepare and return DBI statement handler for query string.
 
 Prepare and return DBI cached statement handler for query string.
 
+=head2 query
+
+Like L<Mojo::Pg::Database#query> but input params - L<Mojo::Pg::Che#Params-for-quering-methods>
+
+Blocking query without attr B<Async> or callback.
+
+Non-blocking query with attr B<Async> or callback.
+
 =head2 selectrow_array
 
-DBI style quering. See L<DBI#selectrow_array>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectrow_array>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectrow_arrayref
 
-DBI style quering. See L<DBI#selectrow_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectrow_arrayref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectrow_hashref
 
-DBI style quering. See L<DBI#selectrow_hashref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectrow_hashref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectall_arrayref
 
-DBI style quering. See L<DBI#selectall_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectall_arrayref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectall_hashref
 
-DBI style quering. See L<DBI#selectall_hashref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectall_hashref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 selectcol_arrayref
 
-DBI style quering. See L<DBI#selectcol_arrayref>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
+DBI style quering. See L<DBI#selectcol_arrayref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 do
 
-DBI style quering. See L<DBI#do>. Blocking|non-blocking, query string|statement handler. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
+DBI style quering. See L<DBI#do>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che#Params-for-quering-methods>.
 
 =head2 begin
 
@@ -174,7 +174,7 @@ Start transaction and return new L<Mojo::Pg::Che::Database> object which attr C<
 
 =head1 Params for quering methods
 
-The methods C<query>, C<select...>, C<do> has next input params:
+The methods C<query>, C<select...>, C<do> has next ordered input params:
 
 =over 4
 
@@ -184,7 +184,7 @@ The methods C<query>, C<select...>, C<do> has next input params:
 
 =item * Array of bind values (optional)
 
-=item * Callback non-blocking (optional)
+=item * Last param - callback/coderef for non-blocking (optional)
 
 =back
 
