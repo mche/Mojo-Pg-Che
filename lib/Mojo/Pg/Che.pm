@@ -301,22 +301,22 @@ sub rollback {croak 'Use: $tx = $pg->begin; $tx->do(...); $tx->rollback;';}
 sub _dequeue {
   my $self = shift;
 
-  #~ while (my $dbh = shift @{$self->{queue} || []}) { return $dbh if $dbh->ping }
+  while (my $dbh = shift @{$self->{queue} || []}) { return $dbh if $dbh->ping }
   
-  my $queue = $self->{queue} ||= [];
+  #~ my $queue = $self->{queue} ||= [];
   
-  for my $i (0..$#$queue) {
+  #~ for my $i (0..$#$queue) {
     
-    my $dbh = $queue->[$i];
+    #~ my $dbh = $queue->[$i];
     
-    delete $queue->[$i]
-      and next
+    #~ delete $queue->[$i]
+      #~ and next
       unless $dbh->ping;
     
     #~ say STDERR "DBH [$dbh] из пула" and
-    return delete $queue->[$i] #(splice(@$queue, $i, 1))[0]
-      unless $dbh->{pg_async_status} > 0;
-  }
+    #~ return delete $queue->[$i] #(splice(@$queue, $i, 1))[0]
+      #~ unless $dbh->{pg_async_status} > 0;
+  #~ }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
   #~ say STDERR "НОвое [$dbh] соединение";
