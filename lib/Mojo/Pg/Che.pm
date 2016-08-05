@@ -80,12 +80,13 @@ our $VERSION = '0.06';
   };
   die $@ if $@;
   
-  my $tx = $pg->begin;
-  $tx->do('insert into foo (name) values (?)', 'bazzzz');
-  $tx->rollback;
-  $tx->begin;
-  $tx->query('insert into foo (name) values (?)', 'barrr');
-  $tx->commit;
+  my $db = $pg->db;
+  $db->begin;
+  $db->do('insert into foo (name) values (?)', 'bazzzz');
+  $db->rollback;
+  $db->begin;
+  $db->query('insert into foo (name) values (?)', 'barrr');
+  $db->commit;
 
 =head1 Non-blocking query cases
 
