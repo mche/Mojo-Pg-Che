@@ -307,8 +307,7 @@ sub _dequeue {
   for my $i (0..$#$queue) {
     
     my $dbh = $queue->[$i];
-    
-    #~ warn "pg_async_status: ", $dbh->{pg_async_status} and
+
     next
       if $dbh->{pg_async_status} && $dbh->{pg_async_status} > 0;
     
