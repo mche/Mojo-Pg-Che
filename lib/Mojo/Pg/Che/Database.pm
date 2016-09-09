@@ -11,7 +11,7 @@ has handler_err => sub {$handler_err};
 
 has [qw(dbh pg)];
 
-has result_class => sub {
+has results_class => sub {
   require Mojo::Pg::Che::Results;
   'Mojo::Pg::Che::Results';
 };
@@ -36,7 +36,7 @@ sub execute_sth {
   # Blocking
   unless ($cb) {
     $self->_notifications;
-    return $self->result_class->new(sth => $sth);
+    return $self->results_class->new(sth => $sth);
   }
   
   # Non-blocking
@@ -155,7 +155,7 @@ sub _AUTOLOAD_SELECT {
   (my $fetch_method = $method) =~ s/select/fetch/;
   
   return $result->$fetch_method(@to_fetch)
-    if ref $result eq $self->result_class;
+    if ref $result eq $self->results_class;
   
   return $result;
   
@@ -174,7 +174,7 @@ sub  AUTOLOAD {
   
 }
 
-#Patch parent meth for $self->result_class
+#Patch parent meth for $self->results_class
 sub _watch {
   my $self = shift;
 
@@ -198,7 +198,7 @@ sub _watch {
       my $result = do { local $dbh->{RaiseError} = 0; $dbh->pg_result };
       my $err = defined $result ? undef : $dbh->errstr;
 
-      eval { $self->$cb($err, $self->result_class->new(sth => $sth)); };
+      eval { $self->$cb($err, $self->results_class->new(sth => $sth)); };
       warn "Non-blocking callback result error: ", $@
         and $reactor->{cb_error} = $@
         if $@;

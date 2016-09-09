@@ -18,11 +18,11 @@ Mojo::Pg::Che - mix of parent Mojo::Pg and DBI.pm
 
 =head1 VERSION
 
-Version 0.061
+Version 0.070
 
 =cut
 
-our $VERSION = '0.061';
+our $VERSION = '0.070';
 
 
 =head1 SYNOPSIS
@@ -188,6 +188,12 @@ The methods C<query>, C<select...>, C<do> has next ordered input params:
 
 =back
 
+=head1 SEE ALSO
+
+L<Mojo::Pg>
+
+L<DBI>
+
 =head1 AUTHOR
 
 Михаил Че (Mikhail Che), C<< <mche[-at-]cpan.org> >>
@@ -207,7 +213,7 @@ it under the same terms as Perl itself.
 
 use Carp qw(croak);
 
-has db_class => sub {
+has database_class => sub {
   require Mojo::Pg::Che::Database;
   'Mojo::Pg::Che::Database';
 };
@@ -269,7 +275,7 @@ sub db {
   
   $dbh ||= $self->_dequeue;
 
-  return $self->db_class->new(dbh => $dbh, pg => $self);
+  return $self->database_class->new(dbh => $dbh, pg => $self);
 }
 
 sub prepare { shift->db->prepare(@_); }

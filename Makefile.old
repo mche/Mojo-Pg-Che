@@ -18,7 +18,7 @@
 #     LICENSE => q[perl]
 #     NAME => q[Mojo::Pg::Che]
 #     PL_FILES => {  }
-#     PREREQ_PM => { Mojo::Pg=>q[2.28], Test::More=>q[0] }
+#     PREREQ_PM => { Mojo::Pg=>q[2.29], Test::More=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/Mojo/Pg/Che.pm]
 #     dist => { COMPRESS=>q[gzip -9f], SUFFIX=>q[gz] }
@@ -60,11 +60,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Mojo::Pg::Che
 NAME_SYM = Mojo_Pg_Che
-VERSION = 0.06
+VERSION = 0.070
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_06
+VERSION_SYM = 0_070
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.06
+XS_VERSION = 0.070
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -165,9 +165,9 @@ O_FILES  =
 H_FILES  = 
 MAN1PODS = 
 MAN3PODS = README.pod \
-	lib/Mojo/Pg.pm \
 	lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pod \
+	lib/Mojo/Pg/Che/Results.pod \
 	lib/Mojo/Pg/Database.pm \
 	lib/Mojo/Pg/Migrations.pm \
 	lib/Mojo/Pg/PubSub.pm \
@@ -196,11 +196,12 @@ PERL_ARCHIVE_AFTER =
 
 
 TO_INST_PM = README.pod \
-	lib/Mojo/Pg.pm \
+	lib/Mojo/Pg.pm.2.28 \
 	lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pm \
 	lib/Mojo/Pg/Che/Database.pod \
 	lib/Mojo/Pg/Che/Results.pm \
+	lib/Mojo/Pg/Che/Results.pod \
 	lib/Mojo/Pg/Database.pm \
 	lib/Mojo/Pg/Migrations.pm \
 	lib/Mojo/Pg/PubSub.pm \
@@ -209,8 +210,8 @@ TO_INST_PM = README.pod \
 
 PM_TO_BLIB = README.pod \
 	$(INST_LIB)/Mojo/Pg/README.pod \
-	lib/Mojo/Pg.pm \
-	blib/lib/Mojo/Pg.pm \
+	lib/Mojo/Pg.pm.2.28 \
+	blib/lib/Mojo/Pg.pm.2.28 \
 	lib/Mojo/Pg/Che.pm \
 	blib/lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pm \
@@ -219,6 +220,8 @@ PM_TO_BLIB = README.pod \
 	blib/lib/Mojo/Pg/Che/Database.pod \
 	lib/Mojo/Pg/Che/Results.pm \
 	blib/lib/Mojo/Pg/Che/Results.pm \
+	lib/Mojo/Pg/Che/Results.pod \
+	blib/lib/Mojo/Pg/Che/Results.pod \
 	lib/Mojo/Pg/Database.pm \
 	blib/lib/Mojo/Pg/Database.pm \
 	lib/Mojo/Pg/Migrations.pm \
@@ -298,7 +301,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Mojo-Pg-Che
-DISTVNAME = Mojo-Pg-Che-0.06
+DISTVNAME = Mojo-Pg-Che-0.070
 
 
 # --- MakeMaker macro section:
@@ -453,9 +456,9 @@ POD2MAN = $(POD2MAN_EXE)
 
 manifypods : pure_all  \
 	README.pod \
-	lib/Mojo/Pg.pm \
 	lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pod \
+	lib/Mojo/Pg/Che/Results.pod \
 	lib/Mojo/Pg/Database.pm \
 	lib/Mojo/Pg/Migrations.pm \
 	lib/Mojo/Pg/PubSub.pm \
@@ -463,9 +466,9 @@ manifypods : pure_all  \
 	lib/Mojo/Pg/Transaction.pm
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) -u \
 	  README.pod $(INST_MAN3DIR)/Mojo::Pg::README.$(MAN3EXT) \
-	  lib/Mojo/Pg.pm $(INST_MAN3DIR)/Mojo::Pg.$(MAN3EXT) \
 	  lib/Mojo/Pg/Che.pm $(INST_MAN3DIR)/Mojo::Pg::Che.$(MAN3EXT) \
 	  lib/Mojo/Pg/Che/Database.pod $(INST_MAN3DIR)/Mojo::Pg::Che::Database.$(MAN3EXT) \
+	  lib/Mojo/Pg/Che/Results.pod $(INST_MAN3DIR)/Mojo::Pg::Che::Results.$(MAN3EXT) \
 	  lib/Mojo/Pg/Database.pm $(INST_MAN3DIR)/Mojo::Pg::Database.$(MAN3EXT) \
 	  lib/Mojo/Pg/Migrations.pm $(INST_MAN3DIR)/Mojo::Pg::Migrations.$(MAN3EXT) \
 	  lib/Mojo/Pg/PubSub.pm $(INST_MAN3DIR)/Mojo::Pg::PubSub.$(MAN3EXT) \
@@ -556,8 +559,8 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - t' >> META_new.yml
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META_new.yml
-	$(NOECHO) $(ECHO) '  Mojo::Pg: '\''2.28'\''' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''0.06'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Mojo::Pg: '\''2.29'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''0.070'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
@@ -595,12 +598,12 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "runtime" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
-	$(NOECHO) $(ECHO) '            "Mojo::Pg" : "2.28"' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Mojo::Pg" : "2.29"' >> META_new.json
 	$(NOECHO) $(ECHO) '         }' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.06",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.070",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 2.27300"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -906,7 +909,7 @@ ppd :
 	$(NOECHO) $(ECHO) '    <ABSTRACT>mix of parent Mojo::Pg and DBI.pm</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>ÐÐ¸ÑÐ°Ð¸Ð» Ð§Ðµ (Mikhail Che) &lt;mche[-at-]cpan.org&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Mojo::Pg" VERSION="2.28" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Mojo::Pg" VERSION="2.29" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-5.18" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> $(DISTNAME).ppd
@@ -918,11 +921,12 @@ ppd :
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
 	  README.pod $(INST_LIB)/Mojo/Pg/README.pod \
-	  lib/Mojo/Pg.pm blib/lib/Mojo/Pg.pm \
+	  lib/Mojo/Pg.pm.2.28 blib/lib/Mojo/Pg.pm.2.28 \
 	  lib/Mojo/Pg/Che.pm blib/lib/Mojo/Pg/Che.pm \
 	  lib/Mojo/Pg/Che/Database.pm blib/lib/Mojo/Pg/Che/Database.pm \
 	  lib/Mojo/Pg/Che/Database.pod blib/lib/Mojo/Pg/Che/Database.pod \
 	  lib/Mojo/Pg/Che/Results.pm blib/lib/Mojo/Pg/Che/Results.pm \
+	  lib/Mojo/Pg/Che/Results.pod blib/lib/Mojo/Pg/Che/Results.pod \
 	  lib/Mojo/Pg/Database.pm blib/lib/Mojo/Pg/Database.pm \
 	  lib/Mojo/Pg/Migrations.pm blib/lib/Mojo/Pg/Migrations.pm \
 	  lib/Mojo/Pg/PubSub.pm blib/lib/Mojo/Pg/PubSub.pm \
