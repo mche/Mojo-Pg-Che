@@ -1,0 +1,77 @@
+=pod
+
+=encoding utf-8
+
+Доброго всем
+
+=head1 Mojo::Pg::Che::Results
+
+¡ ¡ ¡ ALL GLORY TO GLORIA ! ! !
+
+=head1 NAME
+
+Mojo::Pg::Che::Results - mix of parent Mojo::Pg::Results and DBI.pm
+
+
+=head1 SYNOPSIS
+
+First see parent L<Mojo::Pg::Results#SYNOPSIS>
+
+    my $cb = sub {
+      my ($db, $err, $results) = @_;
+      die $err
+        if $err;
+      say $results->fetchrow_array;
+    };
+    
+    $pg->query("select ?::int", undef, $_, $cb)
+      for 1..10;
+    Mojo::IOLoop->start
+      unless Mojo::IOLoop->is_running;
+
+
+=head1 METHODS
+
+All methods from parent module L<Mojo::Pg::Results> are inherits and implements the following new ones.
+
+=head2 fetchrow_array
+
+DBI style quering. See L<DBI#fetchrow_array>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che::Database#Params-for-quering-methods>.
+
+=head2 fetchrow_arrayref
+
+DBI style quering. See L<DBI#fetchrow_arrayref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che::Database#Params-for-quering-methods>.
+
+=head2 fetchrow_hashref
+
+DBI style quering. See L<DBI#fetchrow_hashref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che::Database#Params-for-quering-methods>.
+
+=head2 fetchall_arrayref
+
+DBI style quering. See L<DBI#fetchall_arrayref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che::Database#Params-for-quering-methods>.
+
+=head2 fetchall_hashref
+
+DBI style quering. See L<DBI#fetchall_hashref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che::Database#Params-for-quering-methods>.
+
+=head2 fetchcol_arrayref
+
+DBI style quering. See L<DBI#fetchcol_arrayref>. Blocking | non-blocking. Input params - L<Mojo::Pg::Che::Database#Params-for-quering-methods>.
+
+
+=head1 AUTHOR
+
+Михаил Че (Mikhail Che), C<< <mche[-at-]cpan.org> >>
+
+=head1 BUGS / CONTRIBUTING
+
+Please report any bugs or feature requests at L<https://github.com/mche/Mojo-Pg-Che/issues>. Pull requests also welcome.
+
+=head1 COPYRIGHT
+
+Copyright 2016 Mikhail Che.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
