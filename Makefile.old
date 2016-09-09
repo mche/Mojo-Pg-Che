@@ -167,12 +167,7 @@ MAN1PODS =
 MAN3PODS = README.pod \
 	lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pod \
-	lib/Mojo/Pg/Che/Results.pod \
-	lib/Mojo/Pg/Database.pm \
-	lib/Mojo/Pg/Migrations.pm \
-	lib/Mojo/Pg/PubSub.pm \
-	lib/Mojo/Pg/Results.pm \
-	lib/Mojo/Pg/Transaction.pm
+	lib/Mojo/Pg/Che/Results.pod
 
 # Where is the Config information that we are using/depend on
 CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
@@ -202,11 +197,11 @@ TO_INST_PM = README.pod \
 	lib/Mojo/Pg/Che/Database.pod \
 	lib/Mojo/Pg/Che/Results.pm \
 	lib/Mojo/Pg/Che/Results.pod \
-	lib/Mojo/Pg/Database.pm \
-	lib/Mojo/Pg/Migrations.pm \
-	lib/Mojo/Pg/PubSub.pm \
-	lib/Mojo/Pg/Results.pm \
-	lib/Mojo/Pg/Transaction.pm
+	lib/Mojo/Pg/Database.pm.2.28 \
+	lib/Mojo/Pg/Migrations.pm.2.28 \
+	lib/Mojo/Pg/PubSub.pm2.28 \
+	lib/Mojo/Pg/Results.pm2.28 \
+	lib/Mojo/Pg/Transaction.pm2.28
 
 PM_TO_BLIB = README.pod \
 	$(INST_LIB)/Mojo/Pg/README.pod \
@@ -222,16 +217,16 @@ PM_TO_BLIB = README.pod \
 	blib/lib/Mojo/Pg/Che/Results.pm \
 	lib/Mojo/Pg/Che/Results.pod \
 	blib/lib/Mojo/Pg/Che/Results.pod \
-	lib/Mojo/Pg/Database.pm \
-	blib/lib/Mojo/Pg/Database.pm \
-	lib/Mojo/Pg/Migrations.pm \
-	blib/lib/Mojo/Pg/Migrations.pm \
-	lib/Mojo/Pg/PubSub.pm \
-	blib/lib/Mojo/Pg/PubSub.pm \
-	lib/Mojo/Pg/Results.pm \
-	blib/lib/Mojo/Pg/Results.pm \
-	lib/Mojo/Pg/Transaction.pm \
-	blib/lib/Mojo/Pg/Transaction.pm
+	lib/Mojo/Pg/Database.pm.2.28 \
+	blib/lib/Mojo/Pg/Database.pm.2.28 \
+	lib/Mojo/Pg/Migrations.pm.2.28 \
+	blib/lib/Mojo/Pg/Migrations.pm.2.28 \
+	lib/Mojo/Pg/PubSub.pm2.28 \
+	blib/lib/Mojo/Pg/PubSub.pm2.28 \
+	lib/Mojo/Pg/Results.pm2.28 \
+	blib/lib/Mojo/Pg/Results.pm2.28 \
+	lib/Mojo/Pg/Transaction.pm2.28 \
+	blib/lib/Mojo/Pg/Transaction.pm2.28
 
 
 # --- MakeMaker platform_constants section:
@@ -458,22 +453,12 @@ manifypods : pure_all  \
 	README.pod \
 	lib/Mojo/Pg/Che.pm \
 	lib/Mojo/Pg/Che/Database.pod \
-	lib/Mojo/Pg/Che/Results.pod \
-	lib/Mojo/Pg/Database.pm \
-	lib/Mojo/Pg/Migrations.pm \
-	lib/Mojo/Pg/PubSub.pm \
-	lib/Mojo/Pg/Results.pm \
-	lib/Mojo/Pg/Transaction.pm
+	lib/Mojo/Pg/Che/Results.pod
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) -u \
 	  README.pod $(INST_MAN3DIR)/Mojo::Pg::README.$(MAN3EXT) \
 	  lib/Mojo/Pg/Che.pm $(INST_MAN3DIR)/Mojo::Pg::Che.$(MAN3EXT) \
 	  lib/Mojo/Pg/Che/Database.pod $(INST_MAN3DIR)/Mojo::Pg::Che::Database.$(MAN3EXT) \
-	  lib/Mojo/Pg/Che/Results.pod $(INST_MAN3DIR)/Mojo::Pg::Che::Results.$(MAN3EXT) \
-	  lib/Mojo/Pg/Database.pm $(INST_MAN3DIR)/Mojo::Pg::Database.$(MAN3EXT) \
-	  lib/Mojo/Pg/Migrations.pm $(INST_MAN3DIR)/Mojo::Pg::Migrations.$(MAN3EXT) \
-	  lib/Mojo/Pg/PubSub.pm $(INST_MAN3DIR)/Mojo::Pg::PubSub.$(MAN3EXT) \
-	  lib/Mojo/Pg/Results.pm $(INST_MAN3DIR)/Mojo::Pg::Results.$(MAN3EXT) \
-	  lib/Mojo/Pg/Transaction.pm $(INST_MAN3DIR)/Mojo::Pg::Transaction.$(MAN3EXT) 
+	  lib/Mojo/Pg/Che/Results.pod $(INST_MAN3DIR)/Mojo::Pg::Che::Results.$(MAN3EXT) 
 
 
 
@@ -927,11 +912,11 @@ pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	  lib/Mojo/Pg/Che/Database.pod blib/lib/Mojo/Pg/Che/Database.pod \
 	  lib/Mojo/Pg/Che/Results.pm blib/lib/Mojo/Pg/Che/Results.pm \
 	  lib/Mojo/Pg/Che/Results.pod blib/lib/Mojo/Pg/Che/Results.pod \
-	  lib/Mojo/Pg/Database.pm blib/lib/Mojo/Pg/Database.pm \
-	  lib/Mojo/Pg/Migrations.pm blib/lib/Mojo/Pg/Migrations.pm \
-	  lib/Mojo/Pg/PubSub.pm blib/lib/Mojo/Pg/PubSub.pm \
-	  lib/Mojo/Pg/Results.pm blib/lib/Mojo/Pg/Results.pm \
-	  lib/Mojo/Pg/Transaction.pm blib/lib/Mojo/Pg/Transaction.pm 
+	  lib/Mojo/Pg/Database.pm.2.28 blib/lib/Mojo/Pg/Database.pm.2.28 \
+	  lib/Mojo/Pg/Migrations.pm.2.28 blib/lib/Mojo/Pg/Migrations.pm.2.28 \
+	  lib/Mojo/Pg/PubSub.pm2.28 blib/lib/Mojo/Pg/PubSub.pm2.28 \
+	  lib/Mojo/Pg/Results.pm2.28 blib/lib/Mojo/Pg/Results.pm2.28 \
+	  lib/Mojo/Pg/Transaction.pm2.28 blib/lib/Mojo/Pg/Transaction.pm2.28 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 
