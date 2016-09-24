@@ -236,37 +236,6 @@ sub connect {
   return $self;
 }
 
-sub query000 {
-  my $self = shift;
-  #~ my ($query, $attrs, @bind) = @_;
-  my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
-  
-  my $attrs = shift;
-  my $async = delete $attrs->{Async} || delete $attrs->{pg_async};
-  
-  my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
-  my $result;
-  $cb ||= sub {
-    my ($db, $err) = map shift, 1..2;
-    croak "Error on non-blocking query: ",$err
-      if $err;
-    $result = shift;
-    
-  } if $async;
-  
-  my @bind = @_;
-  
-  #~ $sth ||= $self->prepare($query, $attrs, 3); ?????
-  
-  if ($sth) {$result = $self->db($sth->{Database})->execute_sth($sth, @bind, $cb ? ($cb) : ());}
-  else {$result = $self->db->execute_string($query, $attrs, @bind, $cb ? ($cb) : (),);}
-  
-  Mojo::IOLoop->start if $async && not(Mojo::IOLoop->is_running);
-
-  return $result;
-  
-}
-
 sub db {
   my ($self, $dbh) = (shift, shift);
 

@@ -47,7 +47,7 @@ subtest 'blocking selectrow_array' => sub {
   for (142..144) {
     push @result, $pg->selectrow_array('select ?::int, 100', undef, ($_));
   }
-  is scalar @result, 3, 'blocking pg selectrow_array';
+  is scalar @result, 6, 'blocking pg selectrow_array';
 };
 
 subtest 'async selectrow_arrayref' => sub {
