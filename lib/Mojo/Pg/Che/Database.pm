@@ -98,6 +98,7 @@ sub rollback {
 }
 
 my @AUTOLOAD_SELECT = qw(
+select
 selectrow_array
 selectrow_arrayref
 selectrow_hashref

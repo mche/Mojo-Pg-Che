@@ -283,6 +283,7 @@ sub prepare_cached { shift->db->prepare_cached(@_); }
 
 sub _db_sth {shift->db(ref $_[0] && $_[0]->{Database})}
 
+sub select { shift->_db_sth(@_)->select(@_) }
 sub selectrow_array { shift->_db_sth(@_)->selectrow_array(@_) }
 sub selectrow_arrayref { shift->_db_sth(@_)->selectrow_arrayref(@_) }
 sub selectrow_hashref { shift->_db_sth(@_)->selectrow_hashref(@_) }

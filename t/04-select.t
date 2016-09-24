@@ -170,7 +170,17 @@ subtest 'selectrow_array'=> sub {
 };
 
 
-
+subtest 'select' => sub {
+  my $row;
+  my $cb = sub {
+    my ($db, $err, $res) = @_;
+    die $err if $err;
+    $row = $res->fetchrow_hashref();
+  };
+  $pg->select("select now() as now", undef, $cb);
+  Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+  like $row->{now}, qr/\d{4}-\d{2}-\d{2}/, 'select+fetchrow_hashref';
+};
 
 
 
