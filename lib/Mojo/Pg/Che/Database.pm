@@ -169,7 +169,7 @@ sub  AUTOLOAD {
   my $dbh = $self->dbh;
   
   return $self->_AUTOLOAD_SELECT($method, @_)
-    if ($dbh->can($method) && scalar grep $_ eq $method, @AUTOLOAD_SELECT);
+    if (scalar grep $_ eq $method, @AUTOLOAD_SELECT); #$dbh->can($method) && 
   
   die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
   
