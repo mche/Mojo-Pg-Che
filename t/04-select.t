@@ -12,22 +12,23 @@ use Mojo::Pg::Che;
 my $class = 'Mojo::Pg::Che';
 
 # 1
-my $pg = $class->connect($dsn, $user, $pw, {pg_enable_utf8 => 1,});
+my $pg = $class->connect($dsn, $user, $pw, );#{pg_enable_utf8 => 1,}
 
 $pg->on(connection=>sub {shift; shift->do('set datestyle to "DMY, ISO";');});
 
-my $result;
-$result = $pg->selectrow_hashref('select now() as now',);
-like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
+subtest 'blocking pg select' => sub {
+  my $r = $pg->selectrow_hashref('select now() as now',);
+  like($r->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
+};
 
-{
+subtest 'blocking db select' => sub {
   my $db = $pg->db;
   my $result = $db->selectrow_hashref('select now() as now',);
   like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking db select');
   
 };
 
-{
+subtest 'async selectrow_hashref' => sub {
   my $sth = $pg->prepare('select now() as now, pg_sleep(?)');
   like $pg->selectrow_hashref($sth, undef, (1))->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref';
   for (1..3) {
@@ -41,15 +42,15 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
   
 };
 
-{
+subtest 'blocking selectrow_array' => sub {
   my @result;
   for (142..144) {
     push @result, $pg->selectrow_array('select ?::int, 100', undef, ($_));
   }
-  is scalar @result, 6, 'blocking pg selectrow_array';
+  is scalar @result, 3, 'blocking pg selectrow_array';
 };
 
-{
+subtest 'async selectrow_arrayref' => sub {
   my @result;
   my $sth = $pg->prepare('select ?::int, pg_sleep(1)');
   for (142..144) {
@@ -60,7 +61,7 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
 };
 
 
-{
+subtest 'blocking selectall_arrayref' => sub {
   my @result;
   my $sth = $pg->prepare('select ?::int, now()');
   for (142..144) {
@@ -72,15 +73,15 @@ like($result->{now}, qr/\d{4}-\d{2}-\d{2}/, 'blocking pg select');
   like $result[0][0][0], qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
 };
 
+subtest 'async selectall_arrayref' => sub {
+  for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Slice=>{},}, (568),)}) {
+    like $_->{c1}, qr/^\d{3}$/, 'selectall_arrayref Slice';
+    like $_->{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
+  }
+};
 
-for (@{$pg->selectall_arrayref('select ?::int as c1, now() as c2', {Async=>1, Slice=>{},}, (568),)}) {
-  like $_->{c1}, qr/^\d{3}$/, 'selectall_arrayref Slice';
-  like $_->{c2}, qr/\d{4}-\d{2}-\d{2}/, 'selectall_arrayref slice column value';
-}
 
-
-
-{
+subtest 'async cb selectall_arrayref' => sub {
   my @result;
   my $cb = sub {
     my ($db, $err, $results) = @_;
@@ -170,7 +171,7 @@ subtest 'selectrow_array'=> sub {
 };
 
 
-subtest 'select' => sub {
+subtest 'select query fetch' => sub {
   my $row;
   my $cb = sub {
     my ($db, $err, $res) = @_;
@@ -178,6 +179,9 @@ subtest 'select' => sub {
     $row = $res->fetchrow_hashref();
   };
   $pg->select("select now() as now", undef, $cb);
+  Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+  like $row->{now}, qr/\d{4}-\d{2}-\d{2}/, 'select+fetchrow_hashref';
+  $pg->query("select now() as now", undef, $cb);
   Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
   like $row->{now}, qr/\d{4}-\d{2}-\d{2}/, 'select+fetchrow_hashref';
 };

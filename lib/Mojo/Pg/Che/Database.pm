@@ -16,6 +16,8 @@ has results_class => sub {
   'Mojo::Pg::Che::Results';
 };
 
+my $PKG = __PACKAGE__;
+
 sub execute_sth {
   my ($self, $sth,) = map shift, 1..2;
   
@@ -97,7 +99,7 @@ sub rollback {
   
 }
 
-my @AUTOLOAD_SELECT = qw(
+my @DBH_METHODS = qw(
 select
 selectrow_array
 selectrow_arrayref
@@ -109,7 +111,14 @@ selectcol_arrayref
 do
 );
 
-sub _AUTOLOAD_SELECT {
+for my $method (@DBH_METHODS) {
+  no strict 'refs';
+  no warnings 'redefine';
+  *{"${PKG}::$method"} = sub { shift->_DBH_METHOD($method, @_) };
+  
+}
+
+sub _DBH_METHOD {
   my ($self, $method) = (shift, shift);
   my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
   
@@ -156,24 +165,24 @@ sub _AUTOLOAD_SELECT {
   (my $fetch_method = $method) =~ s/select/fetch/;
   
   return $result->$fetch_method(@to_fetch)
-    if ref $result eq $self->results_class;
+    if ref $result eq $self->results_class && $result->can($fetch_method);
   
   return $result;
   
 }
 
-our $AUTOLOAD;
-sub  AUTOLOAD {
-  my ($method) = $AUTOLOAD =~ /([^:]+)$/;
-  my $self = shift;
-  my $dbh = $self->dbh;
+#~ our $AUTOLOAD;
+#~ sub  AUTOLOAD {
+  #~ my ($method) = $AUTOLOAD =~ /([^:]+)$/;
+  #~ my $self = shift;
+  #~ my $dbh = $self->dbh;
   
-  return $self->_AUTOLOAD_SELECT($method, @_)
-    if (scalar grep $_ eq $method, @AUTOLOAD_SELECT); #$dbh->can($method) && 
+  #~ return $self->_DBH_METHOD($method, @_)
+    #~ if (scalar grep $_ eq $method, @DBH_METHODS); #$dbh->can($method) && 
   
-  die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
+  #~ die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
   
-}
+#~ }
 
 #Patch parent meth for $self->results_class
 sub _watch {

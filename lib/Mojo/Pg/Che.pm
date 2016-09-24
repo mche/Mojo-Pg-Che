@@ -18,11 +18,11 @@ Mojo::Pg::Che - mix of parent Mojo::Pg and DBI.pm
 
 =head1 VERSION
 
-Version 0.071
+Version 0.072
 
 =cut
 
-our $VERSION = '0.071';
+our $VERSION = '0.072';
 
 
 =head1 SYNOPSIS
@@ -236,7 +236,7 @@ sub connect {
   return $self;
 }
 
-sub query {
+sub query000 {
   my $self = shift;
   #~ my ($query, $attrs, @bind) = @_;
   my ($sth, $query) = ref $_[0] ? (shift, undef) : (undef, shift);
@@ -283,6 +283,7 @@ sub prepare_cached { shift->db->prepare_cached(@_); }
 
 sub _db_sth {shift->db(ref $_[0] && $_[0]->{Database})}
 
+sub query { shift->_db_sth(@_)->select(@_) }
 sub select { shift->_db_sth(@_)->select(@_) }
 sub selectrow_array { shift->_db_sth(@_)->selectrow_array(@_) }
 sub selectrow_arrayref { shift->_db_sth(@_)->selectrow_arrayref(@_) }
