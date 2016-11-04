@@ -18,11 +18,11 @@ Mojo::Pg::Che - mix of parent Mojo::Pg and DBI.pm
 
 =head1 VERSION
 
-Version 0.073
+Version 0.074
 
 =cut
 
-our $VERSION = '0.073';
+our $VERSION = '0.074';
 
 
 =head1 SYNOPSIS
@@ -325,12 +325,12 @@ sub _enqueue {
   my $queue = $self->{queue} ||= [];
   #~ warn "queue++ $dbh:", scalar @$queue and
   
-  push @$queue, $dbh
-    and ($self->debug
-      && (say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does enqueued, pool count:[%s]", scalar @$queue))
-      && 0)
-    or return
-    if $dbh->{Active} && @$queue < $self->max_connections;
+  if ($dbh->{Active} && @$queue < $self->max_connections) {
+    push @$queue, $dbh;
+    $self->debug
+      && say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does enqueued, pool count:[%s]", scalar @$queue);
+    return;
+  }
   #~ shift @$queue while @$queue > $self->max_connections;
   $self->debug
     && say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does not enqueued, pool count:[%s]", scalar @$queue);
