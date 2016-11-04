@@ -18,11 +18,11 @@ Mojo::Pg::Che - mix of parent Mojo::Pg and DBI.pm
 
 =head1 VERSION
 
-Version 0.072
+Version 0.073
 
 =cut
 
-our $VERSION = '0.072';
+our $VERSION = '0.073';
 
 
 =head1 SYNOPSIS
@@ -222,7 +222,8 @@ has options => sub {
   {AutoCommit => 1, AutoInactiveDestroy => 1, PrintError => 0, RaiseError => 1, ShowErrorStatement => 1, pg_enable_utf8 => 1,};
 };
 
-has [qw(debug)];
+has debug => $ENV{DEBUG_Mojo_Pg_Che} || 0;
+my $PKG = __PACKAGE__;
 
 sub connect {
   my $self = shift->SUPER::new;
@@ -233,6 +234,8 @@ sub connect {
   }
   $self->dsn('DBI:Pg:'.$self->dsn)
     unless $self->dsn =~ /^DBI:Pg:/;
+  say STDERR sprintf("[DEBUG $PKG connect] prepare connection data for [%s]", $self->dsn, )
+    if $self->debug;
   return $self;
 }
 
@@ -291,13 +294,17 @@ sub _dequeue {
     
     splice(@$queue, $i, 1);    #~ delete $queue->[$i]
     
-    #~ warn "queue-- $dbh", scalar @$queue and 
-    return $dbh
+    ($self->debug
+      && (say STDERR sprintf("[DEBUG $PKG _dequeue] [$dbh] does dequeued, pool count:[%s]", scalar @$queue))
+      && 0)
+      or return $dbh
       if $dbh->ping;
     
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
+  $self->debug
+    && say STDERR sprintf("[DEBUG $PKG _dequeue] new DBI connection [$dbh]", );
   #~ say STDERR "НОвое [$dbh] соединение";
   
 
@@ -317,9 +324,16 @@ sub _enqueue {
   my ($self, $dbh) = @_;
   my $queue = $self->{queue} ||= [];
   #~ warn "queue++ $dbh:", scalar @$queue and
+  
   push @$queue, $dbh
+    and ($self->debug
+      && (say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does enqueued, pool count:[%s]", scalar @$queue))
+      && 0)
+    or return
     if $dbh->{Active} && @$queue < $self->max_connections;
   #~ shift @$queue while @$queue > $self->max_connections;
+  $self->debug
+    && say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does not enqueued, pool count:[%s]", scalar @$queue);
 }
 
 1;
