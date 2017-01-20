@@ -33,7 +33,8 @@ sub execute_sth {
   $sth->{pg_async} = $cb ? PG_ASYNC : 0; # $self->dbh->{pg_async_status} == 1 ? PG_OLDQUERY_WAIT : PG_ASYNC # 
   
   #~ $sth->execute(map { _json($_) ? to_json $_->{json} : $_ } @_);
-  $sth->execute(@_);#binds
+  eval {$sth->execute(@_)}#binds
+    or die "Bad statement: ", $@, $sth->{Statement};
   
   # Blocking
   unless ($cb) {
