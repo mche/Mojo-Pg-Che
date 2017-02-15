@@ -1,6 +1,6 @@
 package Mojo::Pg::Che;
 
-use Mojo::Base 'Mojo::Pg';
+use Mojo::Base 'Mojo::EventEmitter';#'Mojo::Pg';
 
 =pod
 
@@ -16,18 +16,20 @@ use Mojo::Base 'Mojo::Pg';
 
 Mojo::Pg::Che - mix of parent Mojo::Pg and DBI.pm
 
+=head1 DESCRIPTION
+
+See L<Mojo::Pg>
+
 =head1 VERSION
 
-Version 0.074
+Version 0.800
 
 =cut
 
-our $VERSION = '0.074';
+our $VERSION = '0.800';
 
 
 =head1 SYNOPSIS
-
-
 
     use Mojo::Pg::Che;
 
@@ -38,6 +40,9 @@ our $VERSION = '0.074';
       ->username("postgres")
       ->password('pg--pw')
       ->options(\%attrs);
+    
+    # or
+    my $pg = Mojo::Pg->new('pg://postgres@/test');
 
     # Bloking query
     my $result = $pg->query('select ...', undef, @bind);
@@ -60,9 +65,14 @@ our $VERSION = '0.074';
     
     # Result non-blocking query sth
     my $result = $pg->query($sth, {Async => 1,}, @bind,);
+    # Mojo::Pg::Results style
+    $result->hash->{...}
+    # DBI style
+    $result->fetchrow_hashref->{...};
     
     # Mojo::Pg style
     my $now = $pg->db->query('select now() as now')->hash->{now};
+    $pg->db->query('select pg_sleep(?::int), now() as now', undef, 2, $cb);
     
     # DBI style
     my $now = $pg->selectrow_hashref('select now() as now')->{now};
@@ -211,11 +221,21 @@ it under the same terms as Perl itself.
 
 =cut
 
+use DBI;
 use Carp qw(croak);
+use Mojo::Pg::Che::Database;
+use Mojo::URL;
+use Scalar::Util 'weaken';
 
-has database_class => sub {
-  require Mojo::Pg::Che::Database;
-  'Mojo::Pg::Che::Database';
+has database_class => 'Mojo::Pg::Che::Database';
+has dsn             => 'dbi:Pg:';
+has max_connections => 5;
+has [qw(password username)] => '';
+has pubsub => sub {
+  require Mojo::Pg::PubSub;
+  my $pubsub = Mojo::Pg::PubSub->new(pg => shift);
+  #~ weaken $pubsub->{pg};
+  return $pubsub;
 };
 
 has options => sub {
@@ -224,6 +244,35 @@ has options => sub {
 
 has debug => $ENV{DEBUG_Mojo_Pg_Che} || 0;
 my $PKG = __PACKAGE__;
+
+sub from_string {# copy/paste Mojo::Pg
+  my ($self, $str) = @_;
+
+  # Protocol
+  return $self unless $str;
+  my $url = Mojo::URL->new($str);
+  croak qq{Invalid PostgreSQL connection string "$str"}
+    unless $url->protocol =~ /^(?:pg|postgres(?:ql)?)$/;
+
+  # Connection information
+  my $db = $url->path->parts->[0];
+  my $dsn = defined $db ? "dbi:Pg:dbname=$db" : 'dbi:Pg:';
+  if (my $host = $url->host) { $dsn .= ";host=$host" }
+  if (my $port = $url->port) { $dsn .= ";port=$port" }
+  if (defined(my $username = $url->username)) { $self->username($username) }
+  if (defined(my $password = $url->password)) { $self->password($password) }
+
+  # Service
+  my $hash = $url->query->to_hash;
+  if (my $service = delete $hash->{service}) { $dsn .= "service=$service" }
+
+  # Options
+  @{$self->options}{keys %$hash} = values %$hash;
+
+  return $self->dsn($dsn);
+}
+
+sub new { @_ > 1 ? shift->SUPER::new->from_string(@_) : shift->SUPER::new }# copy/paste Mojo::Pg
 
 sub connect {
   my $self = shift->SUPER::new;
@@ -308,13 +357,6 @@ sub _dequeue {
   #~ say STDERR "НОвое [$dbh] соединение";
   
 
-  #~ if (my $path = $self->search_path) {
-    #~ my $search_path = join ', ', map { $dbh->quote_identifier($_) } @$path;
-    #~ $dbh->do("set search_path to $search_path");
-  #~ }
-  
-  #~ ++$self->{migrated} and $self->migrations->migrate
-    #~ if !$self->{migrated} && $self->auto_migrate;
   $self->emit(connection => $dbh);
 
   return $dbh;
@@ -326,7 +368,7 @@ sub _enqueue {
   #~ warn "queue++ $dbh:", scalar @$queue and
   
   if ($dbh->{Active} && @$queue < $self->max_connections) {
-    push @$queue, $dbh;
+    unshift @$queue, $dbh;
     $self->debug
       && say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does enqueued, pool count:[%s]", scalar @$queue);
     return;

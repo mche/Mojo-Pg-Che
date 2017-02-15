@@ -1,9 +1,12 @@
 package Mojo::Pg::Che::Database;
 
-use Mojo::Base 'Mojo::Pg::Database';
+use Mojo::Base 'Mojo::EventEmitter'; #'Mojo::Pg::Database';
 use Carp qw(croak shortmess);
 use DBD::Pg ':async';
-#~ use Scalar::Util 'weaken';
+use Mojo::IOLoop;
+use Mojo::Pg::Che::Results;
+use Mojo::Pg::Transaction;
+use Scalar::Util 'weaken';
 #~ use Mojo::JSON 'to_json';
 
 my $handler_err = sub {$_[0] = shortmess $_[0]; 0;};
@@ -11,12 +14,63 @@ has handler_err => sub {$handler_err};
 
 has [qw(dbh pg)];
 
-has results_class => sub {
-  require Mojo::Pg::Che::Results;
-  'Mojo::Pg::Che::Results';
-};
+has results_class => 'Mojo::Pg::Che::Results';
 
 my $PKG = __PACKAGE__;
+
+sub disconnect {#  copy/paste Mojo::Pg::Database
+  my $self = shift;
+  $self->_unwatch;
+  $self->dbh->disconnect;
+}
+
+sub is_listening { !!keys %{shift->{listen} || {}} }#  copy/paste Mojo::Pg::Database
+
+sub listen {#  copy/paste Mojo::Pg::Database
+  my ($self, $name) = @_;
+
+  my $dbh = $self->dbh;
+  $dbh->do('listen ' . $dbh->quote_identifier($name))
+    unless $self->{listen}{$name}++;
+  $self->_watch;
+
+  return $self;
+}
+
+sub unlisten {#  copy/paste Mojo::Pg::Database
+  my ($self, $name) = @_;
+
+  my $dbh = $self->dbh;
+  $dbh->do('unlisten ' . $dbh->quote_identifier($name));
+  $name eq '*' ? delete $self->{listen} : delete $self->{listen}{$name};
+  $self->_unwatch unless $self->{waiting} || $self->is_listening;
+
+  return $self;
+}
+
+sub _notifications {#  copy/paste Mojo::Pg::Database
+  my $self = shift;
+  my $dbh  = $self->dbh;
+  while (my $n = $dbh->pg_notifies) { $self->emit(notification => @$n) }
+}
+
+sub notify {#  copy/paste Mojo::Pg::Database
+  my ($self, $name, $payload) = @_;
+
+  my $dbh    = $self->dbh;
+  my $notify = 'notify ' . $dbh->quote_identifier($name);
+  $notify .= ', ' . $dbh->quote($payload) if defined $payload;
+  $dbh->do($notify);
+  $self->_notifications;
+
+  return $self;
+}
+
+sub pid { shift->dbh->{pg_pid} } #  copy/paste Mojo::Pg::Database
+
+sub ping { shift->dbh->ping } #  copy/paste Mojo::Pg::Database
+
+sub query { shift->select(@_) }
 
 sub execute_sth {
   my ($self, $sth,) = map shift, 1..2;
@@ -72,16 +126,16 @@ sub prepare {
 
 sub prepare_cached { shift->dbh->prepare_cached(@_); }
 
-#~ sub do { shift->dbh->do(@_); }
-
 sub tx {shift->begin}
 sub begin {
   my $self = shift;
   return $self->{tx}
     if $self->{tx};
   
-  $self->{tx} = $self->SUPER::begin;
-  return $self->{tx};
+  my $tx = $self->{tx} = Mojo::Pg::Transaction->new(db => $self);
+  weaken $tx->{db};
+  return $tx;
+
 }
 
 sub commit {
@@ -161,7 +215,8 @@ sub _DBH_METHOD {
   
   $result = $self->execute_sth($sth, @bind, $cb ? ($cb) : ());
   
-  Mojo::IOLoop->start if $async && ! Mojo::IOLoop->is_running;
+  Mojo::IOLoop->start
+    if $async && ! Mojo::IOLoop->is_running;
   
   (my $fetch_method = $method) =~ s/select/fetch/;
   
@@ -171,19 +226,6 @@ sub _DBH_METHOD {
   return $result;
   
 }
-
-#~ our $AUTOLOAD;
-#~ sub  AUTOLOAD {
-  #~ my ($method) = $AUTOLOAD =~ /([^:]+)$/;
-  #~ my $self = shift;
-  #~ my $dbh = $self->dbh;
-  
-  #~ return $self->_DBH_METHOD($method, @_)
-    #~ if (scalar grep $_ eq $method, @DBH_METHODS); #$dbh->can($method) && 
-  
-  #~ die sprintf qq{Can't locate autoloaded object method "%s" (%s) via package "%s" at %s line %s.\n}, $method, $AUTOLOAD, ref $self, (caller)[1,2];
-  
-#~ }
 
 #Patch parent meth for $self->results_class
 sub _watch {
@@ -219,12 +261,25 @@ sub _watch {
   )->watch($self->{handle}, 1, 0);
 }
 
-sub DESTROY {
+sub _unwatch {#  copy/paste Mojo::Pg::Database
+  my $self = shift;
+  return unless delete $self->{watching};
+  Mojo::IOLoop->singleton->reactor->remove($self->{handle});
+  $self->emit('close') if $self->is_listening;
+}
+
+sub DESTROY {#  copy/paste Mojo::Pg::Database + rollback
   my $self = shift;
   
   $self->rollback;
   
-  $self->SUPER::DESTROY;
+  my $waiting = $self->{waiting};
+  $waiting->{cb}($self, 'Premature connection close', undef) if $waiting->{cb};
+
+  return unless (my $pg = $self->pg) && (my $dbh = $self->dbh);
+  $pg->_enqueue($dbh);
+  
+  #~ $self->SUPER::DESTROY;
 }
 
 1;

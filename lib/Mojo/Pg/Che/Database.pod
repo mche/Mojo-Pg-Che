@@ -15,7 +15,7 @@ Mojo::Pg::Che::Database - mix of parent Mojo::Pg::Database and DBI.pm
 
 =head1 SYNOPSIS
 
-First see parent L<Mojo::Pg::Database#SYNOPSIS>
+See also L<Mojo::Pg::Database#SYNOPSIS>
 
     my $db = $pg->db;
     
@@ -23,6 +23,8 @@ First see parent L<Mojo::Pg::Database#SYNOPSIS>
     my $now = $db->selectrow_hashref('select now() as now')->{now};
     
     my $now = $db->selectrow_array('select now() as now', {Async=>1,});
+    
+    $db->query('select pg_sleep(?::int), now() as now', undef, 2, $cb);
     
     $db->do('set ...');
 

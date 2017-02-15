@@ -13,7 +13,7 @@ my $class = 'Mojo::Pg::Che';
 my $results_class = 'Mojo::Pg::Che::Results';
 
 # 1
-my $pg = $class->connect($dsn, $user, $pw, {pg_enable_utf8 => 1,});
+my $pg = $class->connect($dsn, $user, $pw,);
 
 $pg->on(connection=>sub {shift; shift->do('set datestyle to "DMY, ISO";');});
 
@@ -69,7 +69,7 @@ my $cb = sub {
   $result = $results;
 };
 
-$result = $pg->db->query('select pg_sleep(?::int), now() as now' => 2, $cb);
+$result = $pg->db->query('select pg_sleep(?::int), now() as now', undef, 2, $cb);
 Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
 like $result->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, 'now non-block-query ok';
 

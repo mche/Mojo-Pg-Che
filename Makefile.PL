@@ -18,7 +18,7 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
-        'Mojo::Pg'              => 2.29,
+        'Mojo::Pg'              => 3.01,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     #~clean => { FILES => 'Mojo-Pg-Che-*' },
