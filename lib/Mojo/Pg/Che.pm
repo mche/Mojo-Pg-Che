@@ -234,7 +234,10 @@ has [qw(password username)] => '';
 has pubsub => sub {
   require Mojo::Pg::PubSub;
   my $pubsub = Mojo::Pg::PubSub->new(pg => shift);
-  #~ weaken $pubsub->{pg};
+  #~ weaken $pubsub->{pg};#???
+#Mojo::Reactor::EV: Timer failed: Can't call method "db" on an undefined value at t/06-pubsub.t line 21.
+#EV: error in callback (ignoring): Can't call method "db" on an undefined value at Mojo/Pg/PubSub.pm line 44.
+
   return $pubsub;
 };
 
@@ -283,7 +286,7 @@ sub connect {
   }
   $self->dsn('DBI:Pg:'.$self->dsn)
     unless $self->dsn =~ /^DBI:Pg:/;
-  say STDERR sprintf("[DEBUG $PKG connect] prepare connection data for [%s]", $self->dsn, )
+  say STDERR sprintf("[$PKG->connect] prepare connection data for [%s]", $self->dsn, )
     if $self->debug;
   return $self;
 }
@@ -344,7 +347,7 @@ sub _dequeue {
     splice(@$queue, $i, 1);    #~ delete $queue->[$i]
     
     ($self->debug
-      && (say STDERR sprintf("[DEBUG $PKG _dequeue] [$dbh] does dequeued, pool count:[%s]", scalar @$queue))
+      && (say STDERR sprintf("[$PKG->_dequeue] [$dbh] does dequeued, pool count:[%s]", scalar @$queue))
       && 0)
       or return $dbh
       if $dbh->ping;
@@ -353,7 +356,7 @@ sub _dequeue {
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
   $self->debug
-    && say STDERR sprintf("[DEBUG $PKG _dequeue] new DBI connection [$dbh]", );
+    && say STDERR sprintf("[$PKG->_dequeue] new DBI connection [$dbh]", );
   #~ say STDERR "НОвое [$dbh] соединение";
   
 
@@ -367,15 +370,15 @@ sub _enqueue {
   my $queue = $self->{queue} ||= [];
   #~ warn "queue++ $dbh:", scalar @$queue and
   
-  if ($dbh->{Active} && @$queue < $self->max_connections) {
+  if ($dbh->{Active} && ($dbh->{pg_async_status} && $dbh->{pg_async_status} > 0) || @$queue < $self->max_connections) {
     unshift @$queue, $dbh;
     $self->debug
-      && say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does enqueued, pool count:[%s]", scalar @$queue);
+      && say STDERR sprintf("[$PKG->_enqueue] [$dbh] does enqueued, pool count:[%s], pg_async_status=[%s]", scalar @$queue, $dbh->{pg_async_status});
     return;
   }
   #~ shift @$queue while @$queue > $self->max_connections;
   $self->debug
-    && say STDERR sprintf("[DEBUG $PKG _enqueue] [$dbh] does not enqueued, pool count:[%s]", scalar @$queue);
+    && say STDERR sprintf("[$PKG->_enqueue] [$dbh] does not enqueued, pool count:[%s]", scalar @$queue);
 }
 
 1;
