@@ -36,11 +36,15 @@ subtest 'attr Async=>1' => sub {
   like $$cb->()->hash->{now}, qr/\d{4}-\d{2}-\d{2}/, "right convert to async sth";
   my @cb = ();
   for (1..5) {
-    push @cb, (my $cb = $pg->selectrow_hashref('select now() as now, pg_sleep(?)', {Async=>1}, ($_,)));
+    my $rand = rand;
+    push @cb, [(my $cb = $pg->selectrow_hashref('select now() as now, pg_sleep(?), ?::numeric as rand', {Async=>1}, ($_,$rand))), $rand];
   }
   Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
-  like $$_->()->fetchrow_hashref()->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref'
-    for @cb;
+  for (@cb) {
+    my $r = ${$_->[0]}->()->fetchrow_hashref();
+    like $r->{now}, qr/\d{4}-\d{2}-\d{2}/, 'async sth pg selectrow_hashref';
+    is $r->{rand}, $_->[1], 'right result';
+  }
   
   #~ eval {local $sth; my $res = $pg->selectrow_hashref($sth, undef, (1))->{now};};
   #~ like $@, qr/.+/, 'blocking sth error after async query';
