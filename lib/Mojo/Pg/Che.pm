@@ -22,11 +22,11 @@ See L<Mojo::Pg>
 
 =head1 VERSION
 
-Version 0.850
+Version 0.851
 
 =cut
 
-our $VERSION = '0.850';
+our $VERSION = '0.851';
 
 
 =head1 SYNOPSIS

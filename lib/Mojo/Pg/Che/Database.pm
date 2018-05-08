@@ -103,21 +103,21 @@ sub execute_string {
   
   my $dbh = $self->dbh;
   
-  my $sth = $self->prepare($query, $attrs, 3);
+  my $sth = $self->prepare($query, $attrs,);
   
   return $self->execute_sth($sth, @_);
   
 }
 
 sub prepare {
-  my ($self, $query, $attrs, $flag,)  = @_;
+  my ($self, $query, $attrs,)  = @_;
   
   my $dbh = $self->dbh;
   
   $attrs->{pg_async} = PG_ASYNC
     if delete $attrs->{Async};
   
-  return $dbh->prepare_cached($query, $attrs, $flag)
+  return $dbh->prepare_cached($query, $attrs, 3)
     if delete $attrs->{Cached};
   
   return $dbh->prepare($query, $attrs);
@@ -201,7 +201,7 @@ sub _DBH_METHOD {
   $sth->{pg_async} = PG_ASYNC
     if $sth && $attrs->{pg_async};
 
-  $sth ||= $self->prepare($query, $attrs, 3,);
+  $sth ||= $self->prepare($query, $attrs);
   
   $cb ||= $self->_async_cb()
     if $attrs->{pg_async};
