@@ -6,12 +6,13 @@ use DBD::Pg ':async';
 use Mojo::IOLoop;
 use Mojo::Pg::Che::Results;
 use Mojo::Pg::Transaction;
-use Scalar::Util 'weaken';
+#~ use Scalar::Util 'weaken';
 
 my $handler_err = sub {$_[0] = shortmess $_[0]; 0;};
 has handler_err => sub {$handler_err};
 
-has [qw(dbh pg)];
+has [qw(dbh)];
+has pg => undef, weak => 1;
 
 has results_class => 'Mojo::Pg::Che::Results';
 
@@ -133,7 +134,7 @@ sub begin {
     if $self->{tx};
   
   my $tx = $self->{tx} = Mojo::Pg::Transaction->new(db => $self);
-  weaken $tx->{db};
+  #~ weaken $tx->{db};
   return $tx;
 
 }
