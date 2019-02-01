@@ -22,11 +22,11 @@ See L<Mojo::Pg>
 
 =head1 VERSION
 
-Version 0.853
+Version 0.854
 
 =cut
 
-our $VERSION = '0.853';
+our $VERSION = '0.854';
 
 
 =head1 SYNOPSIS
@@ -229,7 +229,7 @@ use Mojo::Pg::Che::Database;
 #~ use Mojo::URL;
 #~ use Scalar::Util 'blessed';
 
-has 'pg';# => undef, weak => 1;
+has pg => sub { Mojo::Pg->new };#, weak => 1;
 has database_class => 'Mojo::Pg::Che::Database';
 has dsn             => 'dbi:Pg:';
 has max_connections => 5;
@@ -252,11 +252,11 @@ my $PKG = __PACKAGE__;
 sub new {
   my $class = shift;
   my $from_string = @_ == 1;
-  my $pg = $from_string
-    ? Mojo::Pg->new->from_string(shift)
-    : Mojo::Pg->new();
+  my $pg = $from_string && Mojo::Pg->new->from_string(shift);
 
-  my $self = $class->SUPER::new(@_)->pg($pg);
+  my $self = $class->SUPER::new(@_);
+  $self->pg($pg)
+    if $pg;
 
   if ($from_string) {
     map $self->$_($self->pg->$_),
@@ -281,21 +281,23 @@ sub connect {
     my $attrs =  shift;
     my $options = $self->options;
     @$options{ keys %$attrs } = values %$attrs;
-  } elsif (@_) {
+  }
+  if (@_) {
     my $attrs = {@_};
     map $self->$_($attrs->{$_}), keys %$attrs;
   }
   
   $self->dsn('dbi:Pg:'.$self->dsn)
     unless !$self->dsn || $self->dsn =~ /^dbi:Pg:/;
-  say STDERR sprintf("[$PKG->connect] prepare connection data for [%s]", $self->dsn, )
-    if $self->debug;
   
-  $self->pg(Mojo::Pg->new)
-    unless $self->pg;
+  #~ $self->pg(Mojo::Pg->new)
+    #~ unless $self->pg;
   
   map $self->pg->$_($self->$_),
     qw(dsn username password options search_path max_connections);#database_class  pubsub
+  
+  #~ say STDERR sprintf("[$PKG->connect] prepare connection data for [%s]", $self->dsn, )
+    #~ if $self->debug;
   
   return $self;
 }
