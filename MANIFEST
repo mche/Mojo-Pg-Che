@@ -14,6 +14,5 @@ t/02-connection.t
 t/03-query.t
 t/04-select.t
 t/05-transaction.t
-t/06-pubsub.t
 example/ws-pubsub.pl
 
