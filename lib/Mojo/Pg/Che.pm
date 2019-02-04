@@ -8,7 +8,7 @@ use Mojo::Pg::Che::Database;
 #~ use Mojo::URL;
 #~ use Scalar::Util 'blessed';
 
-our $VERSION = '0.855';
+our $VERSION = '0.8551';
 
 has pg => sub { Mojo::Pg->new };#, weak => 1;
 has database_class => 'Mojo::Pg::Che::Database';
@@ -156,6 +156,9 @@ sub rollback {croak 'Instead use: $tx = $pg->begin; $tx->do(...); $tx->rollback;
 sub Mojo::Pg::_dequeue {
   my $self = shift;
   
+  # Fork-safety
+  delete @$self{qw(pid queue)} unless ($self->{pid} //= $$) eq $$;
+  
   my $queue = $self->{queue} ||= [];
   for my $i (0..$#$queue) {
     
@@ -165,13 +168,14 @@ sub Mojo::Pg::_dequeue {
       if $dbh->{pg_async_status} && $dbh->{pg_async_status} > 0;
     
     splice(@$queue, $i, 1);    #~ delete $queue->[$i]
+
+    next
+      unless $dbh->ping;
+
+    $self->debug
+      && say STDERR sprintf("[$PKG->_dequeue] [$dbh] does dequeued, pool count:[%s]", scalar @$queue);
     
-    ($self->debug
-      && (say STDERR sprintf("[$PKG->_dequeue] [$dbh] does dequeued, pool count:[%s]", scalar @$queue))
-      && 0)
-      or return $dbh
-      if $dbh->ping;
-    
+    return $dbh;
   }
   
   my $dbh = DBI->connect(map { $self->$_ } qw(dsn username password options));
@@ -194,7 +198,7 @@ sub Mojo::Pg::_enqueue {
   my $queue = $self->{queue} ||= [];
   #~ warn "queue++ $dbh:", scalar @$queue and
   
-  if (@$queue < $self->max_connections) {#$dbh->{Active} && ($dbh->{pg_async_status} && $dbh->{pg_async_status} > 0) || 
+  if ($dbh->{Active} && $dbh->ping && @$queue < $self->max_connections) {#($dbh->{pg_async_status} && $dbh->{pg_async_status} > 0) || 
     unshift @$queue, $dbh;
     #~ push @$queue, $dbh; # /home/guest/Mojo-Pg-Che/t/09-base-database.t line 108
     $self->debug
@@ -207,8 +211,6 @@ sub Mojo::Pg::_enqueue {
 }
 
 }# end no warnings 'redefine';
-
-
 
 
 1;
