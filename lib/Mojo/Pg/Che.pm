@@ -39,7 +39,7 @@ sub new {
   $self->pg($pg)
     if $pg;
   
-  $pg = $self->pg->parent || $self->pg;
+  $pg ||= $self->pg->parent || $self->pg;
 
   map { $self->$_($pg->$_); }
     qw(dsn username password search_path)#options
@@ -195,8 +195,8 @@ sub Mojo::Pg::_enqueue {
   #~ warn "queue++ $dbh:", scalar @$queue and
   
   if (@$queue < $self->max_connections) {#$dbh->{Active} && ($dbh->{pg_async_status} && $dbh->{pg_async_status} > 0) || 
-    #~ unshift @$queue, $dbh;
-    push @$queue, $dbh; # /home/guest/Mojo-Pg-Che/t/09-base-database.t line 108
+    unshift @$queue, $dbh;
+    #~ push @$queue, $dbh; # /home/guest/Mojo-Pg-Che/t/09-base-database.t line 108
     $self->debug
       && say STDERR sprintf("[$PKG->_enqueue] [$dbh] does enqueued, pool count:[%s], pg_async_status=[%s]", scalar @$queue, $dbh->{pg_async_status});
     return;
