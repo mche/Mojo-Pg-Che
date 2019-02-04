@@ -60,11 +60,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Mojo::Pg::Che
 NAME_SYM = Mojo_Pg_Che
-VERSION = 0.854
+VERSION = 0.855
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_854
+VERSION_SYM = 0_855
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.854
+XS_VERSION = 0.855
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -166,7 +166,7 @@ C_FILES  =
 O_FILES  = 
 H_FILES  = 
 MAN1PODS = 
-MAN3PODS = lib/Mojo/Pg/Che.pm \
+MAN3PODS = lib/Mojo/Pg/Che.pod \
 	lib/Mojo/Pg/Che/Database.pod \
 	lib/Mojo/Pg/Che/Results.pod
 
@@ -194,6 +194,7 @@ PERL_ARCHIVE_AFTER =
 TO_INST_PM = README.pod \
 	lib/Mojo/Pg.pm.2.28 \
 	lib/Mojo/Pg/Che.pm \
+	lib/Mojo/Pg/Che.pod \
 	lib/Mojo/Pg/Che/Database.pm \
 	lib/Mojo/Pg/Che/Database.pod \
 	lib/Mojo/Pg/Che/Results.pm \
@@ -272,7 +273,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Mojo-Pg-Che
-DISTVNAME = Mojo-Pg-Che-0.854
+DISTVNAME = Mojo-Pg-Che-0.855
 
 
 # --- MakeMaker macro section:
@@ -428,11 +429,11 @@ POD2MAN = $(POD2MAN_EXE)
 
 
 manifypods : pure_all config  \
-	lib/Mojo/Pg/Che.pm \
+	lib/Mojo/Pg/Che.pod \
 	lib/Mojo/Pg/Che/Database.pod \
 	lib/Mojo/Pg/Che/Results.pod
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) -u \
-	  lib/Mojo/Pg/Che.pm $(INST_MAN3DIR)/Mojo::Pg::Che.$(MAN3EXT) \
+	  lib/Mojo/Pg/Che.pod $(INST_MAN3DIR)/Mojo::Pg::Che.$(MAN3EXT) \
 	  lib/Mojo/Pg/Che/Database.pod $(INST_MAN3DIR)/Mojo::Pg::Che::Database.$(MAN3EXT) \
 	  lib/Mojo/Pg/Che/Results.pod $(INST_MAN3DIR)/Mojo::Pg::Che::Results.$(MAN3EXT) 
 
@@ -502,7 +503,7 @@ realclean purge :: realclean_subdirs
 metafile : create_distdir
 	$(NOECHO) $(ECHO) Generating META.yml
 	$(NOECHO) $(ECHO) '---' > META_new.yml
-	$(NOECHO) $(ECHO) 'abstract: '\''mix of parent Mojo::Pg and DBI.pm'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'abstract: unknown' >> META_new.yml
 	$(NOECHO) $(ECHO) 'author:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  - "Ð\x9CÐ¸Ñ\NÐ°Ð¸Ð» Ð§Ðµ (Mikhail Che) <mche[-at-]cpan.org>"' >> META_new.yml
 	$(NOECHO) $(ECHO) 'build_requires:' >> META_new.yml
@@ -522,12 +523,12 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Mojo::Pg: '\''3.01'\''' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''0.854'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''0.855'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
 	$(NOECHO) $(ECHO) '{' > META_new.json
-	$(NOECHO) $(ECHO) '   "abstract" : "mix of parent Mojo::Pg and DBI.pm",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "abstract" : "unknown",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "author" : [' >> META_new.json
 	$(NOECHO) $(ECHO) '      "ÐÐ¸ÑÐ°Ð¸Ð» Ð§Ðµ (Mikhail Che) <mche[-at-]cpan.org>"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
@@ -565,7 +566,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.854",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.855",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 2.27400_02"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -875,8 +876,8 @@ testdb_static :: static pure_all
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Mojo-Pg-Che" VERSION="0.854">' > Mojo-Pg-Che.ppd
-	$(NOECHO) $(ECHO) '    <ABSTRACT>mix of parent Mojo::Pg and DBI.pm</ABSTRACT>' >> Mojo-Pg-Che.ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Mojo-Pg-Che" VERSION="0.855">' > Mojo-Pg-Che.ppd
+	$(NOECHO) $(ECHO) '    <ABSTRACT></ABSTRACT>' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>ÐÐ¸ÑÐ°Ð¸Ð» Ð§Ðµ (Mikhail Che) &lt;mche[-at-]cpan.org&gt;</AUTHOR>' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Mojo::Pg" VERSION="3.01" />' >> Mojo-Pg-Che.ppd
@@ -893,6 +894,7 @@ pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	  'README.pod' '$(INST_LIB)/Mojo/Pg/README.pod' \
 	  'lib/Mojo/Pg.pm.2.28' 'blib/lib/Mojo/Pg.pm.2.28' \
 	  'lib/Mojo/Pg/Che.pm' 'blib/lib/Mojo/Pg/Che.pm' \
+	  'lib/Mojo/Pg/Che.pod' 'blib/lib/Mojo/Pg/Che.pod' \
 	  'lib/Mojo/Pg/Che/Database.pm' 'blib/lib/Mojo/Pg/Che/Database.pm' \
 	  'lib/Mojo/Pg/Che/Database.pod' 'blib/lib/Mojo/Pg/Che/Database.pod' \
 	  'lib/Mojo/Pg/Che/Results.pm' 'blib/lib/Mojo/Pg/Che/Results.pm' \
