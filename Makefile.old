@@ -16,9 +16,10 @@
 #     BUILD_REQUIRES => { Test::More=>q[0] }
 #     CONFIGURE_REQUIRES => { ExtUtils::MakeMaker=>q[0] }
 #     LICENSE => q[perl]
+#     META_MERGE => { meta-spec=>{ version=>q[2] }, resources=>{ repository=>{ type=>q[git], url=>q[git://github.com/mche/Mojo-Pg-Che.git], web=>q[https://github.com/mche/Mojo-Pg-Che] } } }
 #     NAME => q[Mojo::Pg::Che]
 #     PL_FILES => {  }
-#     PREREQ_PM => { Mojo::Pg=>q[3.01], Test::More=>q[0] }
+#     PREREQ_PM => { Mojo::Pg=>q[4.1], Test::More=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/Mojo/Pg/Che.pm]
 #     dist => { COMPRESS=>q[gzip -9f], SUFFIX=>q[gz] }
@@ -60,11 +61,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Mojo::Pg::Che
 NAME_SYM = Mojo_Pg_Che
-VERSION = 0.8551
+VERSION = 0.8552
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_8551
+VERSION_SYM = 0_8552
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.8551
+XS_VERSION = 0.8552
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -273,7 +274,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Mojo-Pg-Che
-DISTVNAME = Mojo-Pg-Che-0.8551
+DISTVNAME = Mojo-Pg-Che-0.8552
 
 
 # --- MakeMaker macro section:
@@ -503,7 +504,7 @@ realclean purge :: realclean_subdirs
 metafile : create_distdir
 	$(NOECHO) $(ECHO) Generating META.yml
 	$(NOECHO) $(ECHO) '---' > META_new.yml
-	$(NOECHO) $(ECHO) 'abstract: '\''mix of parent Mojo::Pg and DBI.pm'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'abstract: '\''mix of great Mojo::Pg and DBI'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'author:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  - "Ð\x9CÐ¸Ñ\NÐ°Ð¸Ð» Ð§Ðµ (Mikhail Che) <mche[-at-]cpan.org>"' >> META_new.yml
 	$(NOECHO) $(ECHO) 'build_requires:' >> META_new.yml
@@ -522,13 +523,15 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - t' >> META_new.yml
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META_new.yml
-	$(NOECHO) $(ECHO) '  Mojo::Pg: '\''3.01'\''' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''0.8551'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Mojo::Pg: '\''4.1'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'resources:' >> META_new.yml
+	$(NOECHO) $(ECHO) '  repository: git://github.com/mche/Mojo-Pg-Che.git' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''0.8552'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
 	$(NOECHO) $(ECHO) '{' > META_new.json
-	$(NOECHO) $(ECHO) '   "abstract" : "mix of parent Mojo::Pg and DBI.pm",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "abstract" : "mix of great Mojo::Pg and DBI",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "author" : [' >> META_new.json
 	$(NOECHO) $(ECHO) '      "ÐÐ¸ÑÐ°Ð¸Ð» Ð§Ðµ (Mikhail Che) <mche[-at-]cpan.org>"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
@@ -561,12 +564,19 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "runtime" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
-	$(NOECHO) $(ECHO) '            "Mojo::Pg" : "3.01"' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Mojo::Pg" : "4.1"' >> META_new.json
 	$(NOECHO) $(ECHO) '         }' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.8551",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "resources" : {' >> META_new.json
+	$(NOECHO) $(ECHO) '      "repository" : {' >> META_new.json
+	$(NOECHO) $(ECHO) '         "type" : "git",' >> META_new.json
+	$(NOECHO) $(ECHO) '         "url" : "git://github.com/mche/Mojo-Pg-Che.git",' >> META_new.json
+	$(NOECHO) $(ECHO) '         "web" : "https://github.com/mche/Mojo-Pg-Che"' >> META_new.json
+	$(NOECHO) $(ECHO) '      }' >> META_new.json
+	$(NOECHO) $(ECHO) '   },' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.8552",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 2.27400_02"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -876,11 +886,11 @@ testdb_static :: static pure_all
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Mojo-Pg-Che" VERSION="0.8551">' > Mojo-Pg-Che.ppd
-	$(NOECHO) $(ECHO) '    <ABSTRACT>mix of parent Mojo::Pg and DBI.pm</ABSTRACT>' >> Mojo-Pg-Che.ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Mojo-Pg-Che" VERSION="0.8552">' > Mojo-Pg-Che.ppd
+	$(NOECHO) $(ECHO) '    <ABSTRACT>mix of great Mojo::Pg and DBI</ABSTRACT>' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>ÐÐ¸ÑÐ°Ð¸Ð» Ð§Ðµ (Mikhail Che) &lt;mche[-at-]cpan.org&gt;</AUTHOR>' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> Mojo-Pg-Che.ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Mojo::Pg" VERSION="3.01" />' >> Mojo-Pg-Che.ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Mojo::Pg" VERSION="4.1" />' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-5.26" />' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> Mojo-Pg-Che.ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> Mojo-Pg-Che.ppd
