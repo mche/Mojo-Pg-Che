@@ -18,7 +18,7 @@ See L<Mojo::Pg>
 
 =head1 VERSION
 
-Version 0.8552
+Version 0.856
 
 
 =head1 SYNOPSIS
@@ -34,19 +34,16 @@ Version 0.8552
       ->options(\%attrs)
       ->connect();
     
-    # or
-    my $pg = Mojo::Pg::Che->new('pg://postgres@/test');
+    # or as URL
+    my $pg = Mojo::Pg::Che->new('postgresq://postgres@/test');
     # or
     my $pg = Mojo::Pg::Che->new(dsn=>"dbname=test;", username=>"postgres", password=>'pg-pwd', options=>\%attrs, max_connections=>10);
     
-    #Parent
-    my $pg2 = Mojo::Pg::Che->new($pg);
+    # from parent Mojo::Pg only
+    my $pg2 = Mojo::Pg::Che->new($che->pg);
 
     # Bloking query
     my $result = $pg->query('select ...', undef, @bind);
-    
-    # Non-blocking query
-    my $result = $pg->query('select ...', {Async => 1, ...}, @bind);
     
     # Cached query
     my $result = $pg->query('select ...', {Cached => 1, ...}, @bind);
@@ -54,21 +51,9 @@ Version 0.8552
     # prepare sth
     my $sth = $pg->prepare('select ...');
     
-    # cached async sth
-    my $sth = $pg->prepare_cached('select ...', {Async => 1,},);
-    
     # Non-blocking query for async sth
     $pg->query($sth, undef, @bind, sub {my ($db, $err, $result) = @_; ...});
     Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
-    
-    
-    # Result non-blocking query for async sth
-    my $ref_cb = $pg->query($sth, {Async => 1,}, @bind,);
-    Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
-    # Mojo::Pg::Results style
-    my res = $$ref_cb->()->hash;
-    # same DBI style
-    my $res  = $$ref_cb->()->fetchrow_hashref;
     
     # Mojo::Pg style
     my $now = $pg->db->query('select now() as now')->hash->{now};
@@ -112,19 +97,43 @@ Version 0.8552
   like($_->hash->{d}, qr/2016-06-\d+/, 'correct async query')
     for @results;
 
+=head1 ATTRIBUTES
 
+See main <Mojo::Pg#ATTRIBUTES> and source code.
 
 =head1 METHODS
 
-All methods from parent module L<Mojo::Pg> are inherits and implements the following new ones.
+L<Mojo::Pg::Che> does implement the following methods.
+
+=head new
+
+L<Mojo::Pg>-style connecting.
+
+    my $pg = Mojo::Pg::Che->new
+      ->dsn("DBI:Pg:dbname=test;")
+      ->username("postgres")
+      ->password('pg--pw')
+      ->options(\%attrs)
+      ->connect();
+    
+    # URL
+    my $pg = Mojo::Pg::Che->new('postgresq://postgres@/test');
+    # parent Mojo::Pg only
+    my $pg2 = Mojo::Pg::Che->new($pg->pg);
+    # or
+    my $pg = Mojo::Pg::Che->new(dsn=>"dbname=test;", username=>"postgres", password=>'pg-pwd', options=>\%attrs, max_connections=>10);
 
 =head2 connect
 
-DBI-style of new object instance. See L<DBI#connect>
+L<DBI>-style of new object instance. See L<DBI#connect>
+
+  my $pg = Mojo::Pg::Che->connect("dbname=test;", "postgres", 'pg-pwd', \%attrs, max_connections=>10);
+
+B<NOTE>. Dont set object attrs after C<< ->connect() >>.
 
 =head2 db
 
-Overriden method of L<Mojo::Pg#db>. Because can first input param - DBI database handler (when prepared statement used).
+From method of L<Mojo::Pg#db>. Because can first input param - DBI database handler (when prepared statement used).
 
 =head2 prepare
 
@@ -193,6 +202,10 @@ The methods C<query>, C<select...>, C<do> has next ordered input params:
 =item * Last param - callback/coderef for non-blocking (optional)
 
 =back
+
+=head1 HARD REDEFINED SUBROUTINES
+
+L<Mojo::Pg::Che> does redefine L<Mojo::Pg> B<_enqueue> and B<_dequeue> subroutines.
 
 =head1 SEE ALSO
 

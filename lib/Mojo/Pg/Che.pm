@@ -5,10 +5,9 @@ use Mojo::Pg;
 use DBI;
 use Carp qw(croak);
 use Mojo::Pg::Che::Database;
-#~ use Mojo::URL;
 use Scalar::Util 'blessed';
 
-our $VERSION = '0.8552';
+our $VERSION = '0.856';
 
 has pg => sub { Mojo::Pg->new };#, weak => 1;
 has database_class => 'Mojo::Pg::Che::Database';
@@ -30,6 +29,7 @@ has options => sub {
 has debug => $ENV{DEBUG_Mojo_Pg_Che} || 0;
 my $PKG = __PACKAGE__;
 
+# as Mojo::Pg
 sub new {
   my $class = shift;
   my $from_string = @_ == 1;
@@ -38,8 +38,6 @@ sub new {
   my $self = $class->SUPER::new(@_);
   $self->pg($pg->parent || $pg)
     if $pg;
-  
-  #~ $pg ||= $self->pg->parent || $self->pg;
 
   map { $self->$_($self->pg->$_); }
     qw(dsn username password search_path)#options
@@ -47,9 +45,7 @@ sub new {
 
   $self->dsn('dbi:Pg:'.$self->dsn)
     unless !$self->dsn || $self->dsn =~ /^dbi:Pg:/;
-  
-  #~ $self->pg->dsn('dbi:Pg:'.$self->pg->dsn)
-    #~ unless !$self->pg->dsn || $self->pg->dsn =~ /^dbi:Pg:/;
+
   map { $self->pg->$_($self->$_); }
     qw(dsn username password options search_path max_connections);#database_class pubsub 
   
@@ -58,7 +54,7 @@ sub new {
   return $self;
 }
 
-#DBI
+#as DBI
 sub connect {
   my $self = ref $_[0] ? shift : shift->SUPER::new;
   map { my $has = shift; $has && $self->$_($has)} qw(dsn username password);
@@ -105,36 +101,24 @@ sub db {
 sub prepare { shift->db->prepare(@_); }
 sub prepare_cached { shift->db->prepare_cached(@_); }
 
-# если уже sth и он не в асинхроне - взять его dbh
-sub _db {
-  my $self = shift;
-  my $sth = ref $_[0] ? shift : return $self->db;
-  return $self->db
-    if !!$sth->{pg_async_status};
-
-  $self->db($sth->{Database});
-}
-
 # если уже sth и он не в асинхроне - взять в запрос его
 # или просто у него взять строку запроса для нового dbh
-sub _sth {
-  my $self = shift;
-  my $sth = ref $_[0] ? shift : return @_;
-  #~ warn "_sth: $sth->{pg_async_status}, ";
-  return ($sth, @_)
-    if $sth->{pg_async_status} != 1;
-  return ($sth->{Statement}, @_);
+sub _db_st {
+  my ($self, $st) = @_;
+  return ($self->db($st->{Database}), $st)
+    if ref($st) && $st->{pg_async_status} != 1;
+  return ($self->db, ref($st) ? $st->{Statement} : $st);
 }
 
-sub query { my $self = shift; $self->_db(@_)->select($self->_sth(@_)) }
-sub select { my $self = shift; $self->_db(@_)->select($self->_sth(@_)) }
-sub selectrow_array { my $self = shift; $self->_db(@_)->selectrow_array($self->_sth(@_)) }
-sub selectrow_arrayref { my $self = shift; $self->_db(@_)->selectrow_arrayref($self->_sth(@_)) }
-sub selectrow_hashref { my $self = shift; $self->_db(@_)->selectrow_hashref($self->_sth(@_)) }
-sub selectall_arrayref { my $self = shift; $self->_db(@_)->selectall_arrayref($self->_sth(@_)) }
-sub selectall_hashref { my $self = shift; $self->_db(@_)->selectall_hashref($self->_sth(@_)) }
-sub selectcol_arrayref { my $self = shift; $self->_db(@_)->selectcol_arrayref($self->_sth(@_)) }
-sub do { my $self = shift; $self->_db(@_)->do($self->_sth(@_)) }
+sub query { my ($db, $st) = shift->_db_st(shift); $db->select($st, @_); }
+sub select { my ($db, $st) = shift->_db_st(shift); $db->select($st, @_); }
+sub selectrow_array { my ($db, $st) = shift->_db_st(shift); $db->selectrow_array($st, @_); }
+sub selectrow_arrayref { my ($db, $st) = shift->_db_st(shift); $db->selectrow_arrayref($st, @_); }
+sub selectrow_hashref { my ($db, $st) = shift->_db_st(shift); $db->selectrow_hashref($st, @_); }
+sub selectall_arrayref { my ($db, $st) = shift->_db_st(shift); $db->selectall_arrayref($st, @_); }
+sub selectall_hashref { my ($db, $st) = shift->_db_st(shift); $db->selectall_hashref($st, @_); }
+sub selectcol_arrayref { my ($db, $st) = shift->_db_st(shift); $db->selectcol_arrayref($st, @_); }
+sub do { my ($db, $st) = shift->_db_st(shift); $db->do($st, @_); }
 
 #~ sub begin_work {croak 'Use $pg->db->tx | $pg->db->begin';}
 sub tx {shift->begin}
