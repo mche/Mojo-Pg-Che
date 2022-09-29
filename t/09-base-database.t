@@ -21,6 +21,7 @@ my $pg = Mojo::Pg::Che->connect($dsn, $user, $pw)
   ->pg;#max_connections=>20
 ok $pg->db->ping, 'connected';
 
+=pod
 # Custom search_path
 #~ $pg = Mojo::Pg::Che->new($ENV{TEST_ONLINE})->search_path(['$user', 'foo', 'bar']);
 $pg = Mojo::Pg::Che->connect($dsn, $user, $pw, search_path=>['$user', 'foo', 'bar'])
@@ -30,15 +31,18 @@ is_deeply $pg->db->query('show search_path')->hash,
 #~ $pg = Mojo::Pg::Che->new($ENV{TEST_ONLINE});
 $pg = Mojo::Pg::Che->connect($dsn, $user, $pw, max_connections=>1)
   ->pg;#20
-
+=cut
 subtest 'Connected' => sub {
   ok $pg->db->ping, 'connected';
 };
 
+
 subtest 'Custom search_path' => sub {
-  $pg = Mojo::Pg->new($ENV{TEST_ONLINE})->search_path(['$user', 'foo', 'bar']);
+  #~ $pg = Mojo::Pg->new($ENV{TEST_ONLINE})->search_path(['$user', 'foo', 'bar']);
+  $pg = Mojo::Pg::Che->connect($dsn, $user, $pw, search_path=>['$user', 'foo', 'bar'])->pg
   is_deeply $pg->db->query('SHOW search_path')->hash, {search_path => '"$user", foo, bar'}, 'right structure';
-  $pg = Mojo::Pg->new($ENV{TEST_ONLINE});
+  #~ $pg = Mojo::Pg->new($ENV{TEST_ONLINE});
+  $pg = Mojo::Pg::Che->connect($dsn, $user, $pw)->pg;
 };
 
 subtest 'Blocking select' => sub {
