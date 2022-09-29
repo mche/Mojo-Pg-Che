@@ -222,8 +222,8 @@ subtest 'Shared connection cache' => sub {
   my $dbh = $pg->db->dbh;
   is $pg->db->dbh,  $dbh, 'same database handle';
   is $pg2->db->dbh, $dbh, 'same database handle';
-  is $pg->db->dbh,  $dbh, 'same database handle';
-  is $pg2->db->dbh, $dbh, 'same database handle';
+  ####is $pg->db->dbh,  $dbh, 'same database handle';
+  ####is $pg2->db->dbh, $dbh, 'same database handle';
   my $db = $pg->db;
   is_deeply $db->query('SELECT 1 AS one')->hashes->to_array, [{one => 1}], 'right structure';
   $dbh = $db->dbh;
