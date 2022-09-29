@@ -77,23 +77,23 @@ like $@, qr/HASHREF/, 'right error';
 # ORDER BY
 @sql = $abstract->select('foo', '*', {bar => 'baz'}, {-desc => 'yada'});
 is_deeply \@sql,
-  ['SELECT * FROM "foo" WHERE "bar" = ? ORDER BY "yada" DESC', 'baz'],
+  ['SELECT * FROM "foo" WHERE "bar" = ?  ORDER BY "yada" DESC', 'baz'],
   'right query';
 @sql = $abstract->select('foo', '*', {bar => 'baz'},
   {order_by => {-desc => 'yada'}});
 is_deeply \@sql,
-  ['SELECT * FROM "foo" WHERE "bar" = ? ORDER BY "yada" DESC', 'baz'],
+  ['SELECT * FROM "foo" WHERE "bar" = ?  ORDER BY "yada" DESC', 'baz'],
   'right query';
 
 # LIMIT/OFFSET
 @sql = $abstract->select('foo', '*', undef, {limit => 10, offset => 5});
-is_deeply \@sql, ['SELECT * FROM "foo" LIMIT ? OFFSET ?', 10, 5], 'right query';
+is_deeply \@sql, ['SELECT * FROM "foo"  LIMIT ? OFFSET ?', 10, 5], 'right query';
 
 # GROUP BY
 @sql = $abstract->select('foo', '*', undef, {group_by => \'bar, baz'});
-is_deeply \@sql, ['SELECT * FROM "foo" GROUP BY bar, baz'], 'right query';
+is_deeply \@sql, ['SELECT * FROM "foo"  GROUP BY bar, baz'], 'right query';
 @sql = $abstract->select('foo', '*', undef, {group_by => ['bar', 'baz']});
-is_deeply \@sql, ['SELECT * FROM "foo" GROUP BY "bar", "baz"'], 'right query';
+is_deeply \@sql, ['SELECT * FROM "foo"  GROUP BY "bar", "baz"'], 'right query';
 
 # HAVING
 @sql = $abstract->select('foo', '*', undef,
@@ -107,7 +107,7 @@ is_deeply \@sql,
   {group_by => ['bar'], having => {baz => {'<' => 'bar'}}}
 );
 $result = [
-  'SELECT * FROM "foo" WHERE ("bar" > ? ) GROUP BY "bar" HAVING "baz" < ?',
+  'SELECT * FROM "foo" WHERE "bar" > ?  GROUP BY "bar" HAVING "baz" < ?',
   'baz', 'bar'
 ];
 is_deeply \@sql, $result, 'right query';
