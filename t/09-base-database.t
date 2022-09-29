@@ -124,17 +124,17 @@ subtest 'Statement cache' => sub {
   my $sth = $db->query('SELECT 3 AS three')->sth;
   # хз is $db->query('SELECT 3 AS three')->sth,  $sth, 'same statement handle';
   isnt $db->query('SELECT 4 AS four')->sth, $sth, 'different statement handles';
-  is $db->query('SELECT 3 AS three')->sth,  $sth, 'same statement handle';
+  is $db->query('SELECT 3 AS three')->sth,  $sth, 'same statement handle three-1';
   undef $db;
   $db = $pg->db;
   my $results = $db->query('SELECT 3 AS three');
-  is $results->sth,                          $sth, 'same statement handle';
+  is $results->sth,                          $sth, 'same statement handle three-2';
   isnt $db->query('SELECT 3 AS three')->sth, $sth, 'different statement handles';
   $sth = $db->query('SELECT 3 AS three')->sth;
-  is $db->query('SELECT 3 AS three')->sth,  $sth, 'same statement handle';
+  is $db->query('SELECT 3 AS three')->sth,  $sth, 'same statement handle three-3' ;
   isnt $db->query('SELECT 5 AS five')->sth, $sth, 'different statement handles';
   isnt $db->query('SELECT 6 AS six')->sth,  $sth, 'different statement handles';
-  is $db->query('SELECT 3 AS three')->sth,  $sth, 'same statement handle';
+  is $db->query('SELECT 3 AS three')->sth,  $sth, 'same statement handle three-4';
 };
 
 subtest 'Connection reuse' => sub {
