@@ -16,7 +16,7 @@ my $results_class = 'Mojo::Pg::Che::Results';
 my $pg = $class->connect($dsn, $user, $pw, max_connections=>20, debug=>0,);
 
 #~ $pg->pg->on(connection=>sub { my ($pg, $dbh) = @_; warn "Mojo::PG---connection ",$dbh; $dbh->do('set datestyle to "DMY, ISO";');});
-$pg->on(connection=>sub { $_[1]->do('set datestyle to "DMY, ISO";'); warn $_[0]; });#warn "connection --- ", @_; 
+$pg->on(connection=>sub ($pg, $dbh) { $dbh->do('set datestyle to "DMY, ISO";'); warn $pg; });#warn "connection --- ", @_; 
 
 
 {
