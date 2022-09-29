@@ -17,11 +17,11 @@ is_deeply [$abstract->select(['foo', 'bar', 'baz'])],
 my @sql
   = $abstract->insert('foo', {bar => 'baz'}, {on_conflict => \'do nothing'});
 is_deeply \@sql,
-  ['INSERT INTO "foo" ("bar") VALUES (?) ON CONFLICT do nothing', 'baz'],
+  ['INSERT INTO "foo" ("bar") VALUES (?)  ON CONFLICT do nothing', 'baz'],
   'right query';
 @sql = $abstract->insert('foo', {bar => 'baz'}, {on_conflict => undef});
 is_deeply \@sql,
-  ['INSERT INTO "foo" ("bar") VALUES (?) ON CONFLICT DO NOTHING', 'baz'],
+  ['INSERT INTO "foo" ("bar") VALUES (?)  ON CONFLICT DO NOTHING', 'baz'],
   'right query';
 @sql = $abstract->insert(
   'foo',
@@ -29,7 +29,7 @@ is_deeply \@sql,
   {on_conflict => \'do nothing', returning => '*'}
 );
 my $result = [
-  'INSERT INTO "foo" ("bar") VALUES (?) ON CONFLICT do nothing RETURNING *',
+  'INSERT INTO "foo" ("bar") VALUES (?)  ON CONFLICT do nothing RETURNING *',
   'baz'
 ];
 is_deeply \@sql, $result, 'right query';
@@ -40,7 +40,7 @@ is_deeply \@sql, $result, 'right query';
 );
 $result = [
   'INSERT INTO "foo" ("bar") VALUES (?)'
-    . ' ON CONFLICT (foo) do update set foo = ?',
+    . '  ON CONFLICT (foo) do update set foo = ?',
   'baz', 'yada'
 ];
 is_deeply \@sql, $result, 'right query';
@@ -51,7 +51,7 @@ is_deeply \@sql, $result, 'right query';
 );
 $result = [
   'INSERT INTO "foo" ("bar") VALUES (?)'
-    . ' ON CONFLICT ("foo") DO UPDATE SET "foo" = ?',
+    . '  ON CONFLICT ("foo") DO UPDATE SET "foo" = ?',
   'baz', 'yada'
 ];
 is_deeply \@sql, $result, 'right query';
@@ -62,7 +62,7 @@ is_deeply \@sql, $result, 'right query';
 );
 $result = [
   'INSERT INTO "foo" ("bar") VALUES (?)'
-    . ' ON CONFLICT ("foo", "bar") DO UPDATE SET "foo" = ?',
+    . '  ON CONFLICT ("foo", "bar") DO UPDATE SET "foo" = ?',
   'baz', 'yada'
 ];
 is_deeply \@sql, $result, 'right query';
