@@ -7,7 +7,7 @@ use Carp qw(croak);
 use Mojo::Pg::Che::Database;
 use Scalar::Util 'blessed';
 
-our $VERSION = '0.856';
+our $VERSION = '0.857';
 
 has pg => sub { Mojo::Pg->new };#, weak => 1;
 has database_class => 'Mojo::Pg::Che::Database';

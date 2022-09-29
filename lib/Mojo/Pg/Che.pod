@@ -18,7 +18,7 @@ See L<Mojo::Pg>
 
 =head1 VERSION
 
-Version 0.856
+Version 0.857
 
 
 =head1 SYNOPSIS
