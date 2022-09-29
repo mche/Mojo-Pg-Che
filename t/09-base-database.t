@@ -99,6 +99,7 @@ subtest 'Sequential non-blocking selects' => sub {
   is_deeply $result, [{one => 1}, {one => 1}, {two => 2}], 'right structure';
 };
 
+=pod
 subtest 'Connection cache' => sub {
   is $pg->max_connections, 1, 'right default';
   $pg->max_connections(5);
@@ -115,6 +116,7 @@ subtest 'Connection cache' => sub {
   $pg->db->disconnect;
   isnt $pg->db->dbh, $dbh, 'different database handles';
 };
+=cut
 
 subtest 'Statement cache' => sub {
   my $db  = $pg->db;
