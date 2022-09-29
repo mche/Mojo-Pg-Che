@@ -7,7 +7,7 @@ use Mojo::Pg::Che;
 my $pg       = Mojo::Pg::Che->new->pg;
 my $abstract = $pg->abstract;
 is_deeply [$abstract->insert('foo', {bar => 'baz'})],
-  ['INSERT INTO "foo" ( "bar") VALUES ( ? )', 'baz'], 'right query';
+  ['INSERT INTO "foo" ("bar") VALUES (?)', 'baz'], 'right query';
 is_deeply [$abstract->select('foo', '*')], ['SELECT * FROM "foo"'],
   'right query';
 is_deeply [$abstract->select(['foo', 'bar', 'baz'])],
@@ -17,11 +17,11 @@ is_deeply [$abstract->select(['foo', 'bar', 'baz'])],
 my @sql
   = $abstract->insert('foo', {bar => 'baz'}, {on_conflict => \'do nothing'});
 is_deeply \@sql,
-  ['INSERT INTO "foo" ( "bar") VALUES ( ? ) ON CONFLICT do nothing', 'baz'],
+  ['INSERT INTO "foo" ("bar") VALUES (?) ON CONFLICT do nothing', 'baz'],
   'right query';
 @sql = $abstract->insert('foo', {bar => 'baz'}, {on_conflict => undef});
 is_deeply \@sql,
-  ['INSERT INTO "foo" ( "bar") VALUES ( ? ) ON CONFLICT DO NOTHING', 'baz'],
+  ['INSERT INTO "foo" ("bar") VALUES (?) ON CONFLICT DO NOTHING', 'baz'],
   'right query';
 @sql = $abstract->insert(
   'foo',
@@ -29,7 +29,7 @@ is_deeply \@sql,
   {on_conflict => \'do nothing', returning => '*'}
 );
 my $result = [
-  'INSERT INTO "foo" ( "bar") VALUES ( ? ) ON CONFLICT do nothing RETURNING *',
+  'INSERT INTO "foo" ("bar") VALUES (?) ON CONFLICT do nothing RETURNING *',
   'baz'
 ];
 is_deeply \@sql, $result, 'right query';
@@ -39,7 +39,7 @@ is_deeply \@sql, $result, 'right query';
   {on_conflict => \['(foo) do update set foo = ?', 'yada']}
 );
 $result = [
-  'INSERT INTO "foo" ( "bar") VALUES ( ? )'
+  'INSERT INTO "foo" ("bar") VALUES (?)'
     . ' ON CONFLICT (foo) do update set foo = ?',
   'baz', 'yada'
 ];
@@ -50,7 +50,7 @@ is_deeply \@sql, $result, 'right query';
   {on_conflict => [foo => {foo => 'yada'}]}
 );
 $result = [
-  'INSERT INTO "foo" ( "bar") VALUES ( ? )'
+  'INSERT INTO "foo" ("bar") VALUES (?)'
     . ' ON CONFLICT ("foo") DO UPDATE SET "foo" = ?',
   'baz', 'yada'
 ];
@@ -61,7 +61,7 @@ is_deeply \@sql, $result, 'right query';
   {on_conflict => [['foo', 'bar'] => {foo => 'yada'}]}
 );
 $result = [
-  'INSERT INTO "foo" ( "bar") VALUES ( ? )'
+  'INSERT INTO "foo" ("bar") VALUES (?)'
     . ' ON CONFLICT ("foo", "bar") DO UPDATE SET "foo" = ?',
   'baz', 'yada'
 ];
@@ -77,12 +77,12 @@ like $@, qr/HASHREF/, 'right error';
 # ORDER BY
 @sql = $abstract->select('foo', '*', {bar => 'baz'}, {-desc => 'yada'});
 is_deeply \@sql,
-  ['SELECT * FROM "foo" WHERE ( "bar" = ? ) ORDER BY "yada" DESC', 'baz'],
+  ['SELECT * FROM "foo" WHERE "bar" = ? ORDER BY "yada" DESC', 'baz'],
   'right query';
 @sql = $abstract->select('foo', '*', {bar => 'baz'},
   {order_by => {-desc => 'yada'}});
 is_deeply \@sql,
-  ['SELECT * FROM "foo" WHERE ( "bar" = ? ) ORDER BY "yada" DESC', 'baz'],
+  ['SELECT * FROM "foo" WHERE "bar" = ? ORDER BY "yada" DESC', 'baz'],
   'right query';
 
 # LIMIT/OFFSET
@@ -107,7 +107,7 @@ is_deeply \@sql,
   {group_by => ['bar'], having => {baz => {'<' => 'bar'}}}
 );
 $result = [
-  'SELECT * FROM "foo" WHERE ( "bar" > ? ) GROUP BY "bar" HAVING "baz" < ?',
+  'SELECT * FROM "foo" WHERE ("bar" > ? ) GROUP BY "bar" HAVING "baz" < ?',
   'baz', 'bar'
 ];
 is_deeply \@sql, $result, 'right query';
@@ -152,7 +152,7 @@ is_deeply \@sql, ['UPDATE "foo" SET "bar" = ?', {json => [1, 2, 3]}],
   'right query';
 @sql = $abstract->select('foo', '*', {bar => {'=' => {-json => [1, 2, 3]}}});
 is_deeply \@sql,
-  ['SELECT * FROM "foo" WHERE ( "bar" = ? )', {json => [1, 2, 3]}],
+  ['SELECT * FROM "foo" WHERE "bar" = ?', {json => [1, 2, 3]}],
   'right query';
 
 # JOIN
