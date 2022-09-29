@@ -119,6 +119,7 @@ subtest 'Connection cache' => sub {
 };
 =cut
 
+## 
 subtest 'Statement cache' => sub {
   my $db  = $pg->db;
   my $sth = $db->query('SELECT 3 AS three')->sth;
