@@ -42,7 +42,7 @@ subtest 'Custom search_path' => sub {
   $pg = Mojo::Pg::Che->connect($dsn, $user, $pw, search_path=>['$user', 'foo', 'bar'])->pg;
   is_deeply $pg->db->query('SHOW search_path')->hash, {search_path => '"$user", foo, bar'}, 'right structure';
   #~ $pg = Mojo::Pg->new($ENV{TEST_ONLINE});
-  $pg = Mojo::Pg::Che->connect($dsn, $user, $pw)->pg;
+  $pg = Mojo::Pg::Che->connect($dsn, $user, $pw, max_connections=>1)->pg;
 };
 
 subtest 'Blocking select' => sub {
